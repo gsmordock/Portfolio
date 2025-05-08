@@ -1,0 +1,186 @@
+---
+title: "Project 1"
+format: html
+---
+
+```{r}
+##This reads in the data as well as any packages that are necessary. 
+library(readr)
+library(tidyverse)
+library(janitor)
+hospital <- read_csv("Data/hospital.csv", na=c("Not Applicable", "Not Available"))
+#We removed any of the data that said "Not Applicable" or "Not Available" and replaced it with a N/A that would help for further data analysis. 
+```
+
+```{r}
+##This is to only keeping what I find relevant in my dataset
+hospital <- hospital |>
+  select(
+    `Facility ID`,
+    `Facility Name`, 
+    `HCAHPS Answer Description`, 
+    `Patient Survey Star Rating`, 
+     `HCAHPS Linear Mean Value`,
+    `HCAHPS Answer Percent`,
+    `Survey Response Rate Percent`,
+    `Number of Completed Surveys`
+  )
+```
+
+```{r}
+##clean the data & rename things
+hospital_clean <- hospital |>
+  rename(
+    answer = `HCAHPS Answer Description`,
+    star_rating = `Patient Survey Star Rating`,
+    mean_value = `HCAHPS Linear Mean Value`,
+    answer_percent = `HCAHPS Answer Percent`,
+    fac_id = `Facility ID`,
+    fac_name = `Facility Name`, 
+    response_rate = `Survey Response Rate Percent`,
+    surveys = `Number of Completed Surveys`
+  )
+```
+
+My goal for this project is to see what factors are the heaviest influences on the overall and recommended scores that are reported.
+
+I want to group by rating system: star rating, linear mean value, and answer percent.
+
+```{r}
+#This groups the data by the rating systems: star, linear mean value, and answer percent. 
+hospital.star <- hospital_clean |>
+  select(
+    fac_id,
+    fac_name, 
+    answer, 
+    star_rating, 
+    response_rate,
+    surveys
+  )|>
+  filter( 
+    !is.na(star_rating)
+  )
+
+hospital.lmv <- hospital_clean |>
+  select(
+    fac_id,
+    fac_name, 
+    answer, 
+    mean_value, 
+    response_rate, 
+    surveys
+  )|>
+  filter( 
+    !is.na(mean_value)
+  )
+
+hospital.answer <- hospital_clean |>
+   select(
+    fac_id,
+    fac_name, 
+    answer, 
+    answer_percent, 
+    response_rate,
+    surveys
+  )|>
+  filter( 
+    !is.na(answer_percent))
+```
+
+```{r}
+##label: This is trying to pivot wider so that we can visualize the data in a different way. 
+hospital.lmv <- pivot_wider(hospital.lmv, names_from = answer, values_from = mean_value)
+hospital.answer <- pivot_wider(hospital.answer, names_from = answer, values_from = answer_percent)
+hospital.star <- pivot_wider(hospital.star, names_from = answer, values_from = star_rating)
+```
+
+In looking at the data, the more specific data set would be the linear mean score, hence, I will be continuing to observe with just that data set.
+
+```{r}
+#This renames the variables to shorten them for further coding ease.
+hospital.lmv <- hospital.lmv |>
+  rename(
+      nurse_com = `Nurse communication - linear mean score`,
+      doc_com = `Doctor communication - linear mean score`,
+      staff_response = `Staff responsiveness - linear mean score`,
+      med_coms = `Communication about medicines - linear mean score`, 
+      discharge_info = `Discharge information - linear mean score`,
+      care_transition = `Care transition - linear mean score`,
+      clean = `Cleanliness - linear mean score`,
+      quiet = `Quietness - linear mean score`,
+      overall = `Overall hospital rating - linear mean score`,
+      rec = `Recommend hospital - linear mean score`
+  )
+
+hospital.star <- hospital.star |>
+  rename(
+      nurse_com = `Nurse communication - star rating`,
+      doc_com = `Doctor communication - star rating`,
+      staff_response = `Staff responsiveness - star rating`,
+      med_coms = `Communication about medicines - star rating`, 
+      discharge_info = `Discharge information - star rating`,
+      care_transition = `Care transition - star rating`,
+      clean = `Cleanliness - star rating`,
+      quiet = `Quietness - star rating`,
+      overall = `Overall hospital rating - star rating`,
+      rec = `Recommend hospital - star rating`
+  )
+```
+
+```{r}
+##This gets the average of the scores that could affect the overall or recommended score and creates a new column for that data point for each hospital. 
+hospital.lmv <- hospital.lmv |>
+  mutate( 
+    average_score = rowMeans(subset(hospital.lmv, select = c(nurse_com, doc_com, staff_response, med_coms, discharge_info, care_transition, clean, quiet)), na.rm = TRUE)
+  )
+```
+
+```{r}
+##This finds the differences in the overall and recommendation scores versus the calculated average score. 
+hospital.lmv <- hospital.lmv |>
+  mutate(
+    o.a = overall - average_score, 
+    r.a = rec - average_score
+  )
+```
+
+The section above does not do too much for the initial goal of the project, but it is an interesting thing to see how they compare.
+
+Now, what I want to find is which of the variables has the most impact on the recommended and overall scores, and I will do this through a multiple linear regression model.
+
+```{r}
+#This is my linear regression model for the given overall score. 
+overall.lm <- lm(overall ~ nurse_com + doc_com +  staff_response + med_coms + discharge_info + care_transition + clean + quiet, data = hospital.lmv)
+
+summary(overall.lm)
+plot(overall.lm)
+```
+
+```{r}
+#This is my linear regression model for the given reccommended score. 
+
+rec.lm <- lm(rec ~ nurse_com + doc_com + staff_response + med_coms + discharge_info + care_transition + clean + quiet, data = hospital.lmv)
+
+summary(rec.lm)
+plot(rec.lm)
+```
+
+In reading the summaries and looking at the residual plots, I noticed a few things:
+
+Firstly, the linear model for the overall scores is generally a good fit. However, the recommendation score is not a great fit. There are four plots that we look at for determining if a linear model is a good fit. Those plots are Residuals vs. Fitted, Q-Q residuals, Scale-Location, and Residuals vs. Leverage. To make things short, we want certain shapes for each of these graphs to determine if the model is a good fit. For the Residuals vs. Fitted, Scale-Location, and Residuals vs. Leverage graphs, we want them generally to be scattered about a horizontal line. The Q-Q residuals is different in the sense that we want a diagonal line. For the Residuals vs. Leverage graph, we want our data to form a sort of cone shape that is limited by Cook's distance. Data that is outside that distance tends to skew the model. Notice how neither of the models really go past that line.
+
+Secondly, there are a few data points that stick out and are labeled on the graphs. I did go back through the data to observe those, and they did have higher scores than anticipated, but I chalked it up to great experiences at the hospital.
+
+Thirdly, we look at the r-squared values for each of the models in their summaries. Typically, the larger the value, the more precise the predictor variables are able to predict the overall or recommended score. With this knowledge, the overall linear model is a better model than the recommended model (0.8596 vs. 0.7812).
+
+Lastly, I looked through the values for the predictive equation. The equations are as follows:
+
+-   overall = -17.42 + 0.38(nurse_com) + 0.13(doc_com) + 0.03(staff_response) - 0.04(med_coms) + 0.04 (discharge_info) + 0.51(care_transition) + 0.10(clean) + 0.07(quiet)
+
+-   rec = -49.96 + 0.51(nurse_com) + 0.16(doc_com) - 0.05 (staff_response) - 0.12(med_coms) + 0.03 (discharge_info) + 0.96(care_transition) + 0.08(clean) + 0.03(quiet)
+
+I was curious about what variable impacts the scores the most. With these equations, there is a heavy influence from the care transition for both models.
+
+Limitations:
+
+If I were to receive this data to help me choose a hospital to go to, I would rely more on the overall scores to help me make my decision over the recommended score. However, this data should not be the only research done for these hospitals. These models do not always account for every different experience that a person would get, and some may be skewed positive or skewed negative experiences. The response rates for each of the hospitals varies incredibly, which can also be a factor in what data they receive. In looking at the data collection process, it seems that most of the surveys were of a voluntary response, indicating that mostly those who are passionate about their experience will respond. This may not be truly random data and should be taken with a grain of salt.
