@@ -62,7 +62,7 @@ I'm going to read in the data and display it below.
 
 ```{r}
 library(readr)
-encelia <- read_csv("~/Documents/Math 237/Data/Encelia Classification Data Collection - Sheet1.csv")
+encelia <- read_csv("Data/Encelia Classification Data Collection - Sheet1.csv")
 View(encelia)
 ```
 
