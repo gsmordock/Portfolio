@@ -134,6 +134,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link active" href="./Project1.html" aria-current="page"> 
 <span class="menu-text">Project 1</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./Project-Model-Selection-Encelia.html"> 
+<span class="menu-text">Encelia Data</span></a>
+  </li>  
 </ul>
           </div> <!-- /navcollapse -->
             <div class="quarto-navbar-tools">
@@ -145,8 +149,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#motivation-and-context" id="toc-motivation-and-context" class="nav-link active" data-scroll-target="#motivation-and-context">Motivation and Context</a></li>
+  <li><a href="#main-objective" id="toc-main-objective" class="nav-link" data-scroll-target="#main-objective">Main Objective</a>
+  <ul class="collapse">
+  <li><a href="#my-process" id="toc-my-process" class="nav-link" data-scroll-target="#my-process">My Process</a></li>
+  </ul></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
@@ -170,6 +184,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<section id="motivation-and-context" class="level2">
+<h2 class="anchored" data-anchor-id="motivation-and-context">Motivation and Context</h2>
+<p>For this project, I looked into the hospital dataset that we worked with throughout the semester. When we observed this data, the biggest questions I had in my head were these: how did we get to the final numbers of recommendation or overall score? Did certain aspects have more effects on the scores over others?</p>
+<p><strong>This dataset comes from</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##This reads in the data as well as any packages that are necessary. </span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
@@ -241,7 +259,12 @@ dbl  (6): Patient Survey Star Rating, Patient Survey Star Rating Footnote, H...
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">surveys =</span> <span class="st">`</span><span class="at">Number of Completed Surveys</span><span class="st">`</span></span>
 <span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+<section id="main-objective" class="level1">
+<h1>Main Objective</h1>
 <p>My goal for this project is to see what factors are the heaviest influences on the overall and recommended scores that are reported.</p>
+<section id="my-process" class="level3">
+<h3 class="anchored" data-anchor-id="my-process">My Process</h3>
 <p>I want to group by rating system: star rating, linear mean value, and answer percent.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#This groups the data by the rating systems: star, linear mean value, and answer percent. </span></span>
@@ -479,6 +502,8 @@ F-statistic:  1423 on 8 and 3188 DF,  p-value: &lt; 2.2e-16</code></pre>
 <p>If I were to receive this data to help me choose a hospital to go to, I would rely more on the overall scores to help me make my decision over the recommended score. However, this data should not be the only research done for these hospitals. These models do not always account for every different experience that a person would get, and some may be skewed positive or skewed negative experiences. The response rates for each of the hospitals varies incredibly, which can also be a factor in what data they receive. In looking at the data collection process, it seems that most of the surveys were of a voluntary response, indicating that mostly those who are passionate about their experience will respond. This may not be truly random data and should be taken with a grain of salt.</p>
 
 
+</section>
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
