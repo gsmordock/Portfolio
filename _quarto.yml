@@ -10,6 +10,7 @@ website:
         text: Home
       - about.qmd
       - Project1.qmd
+      - Project-Model-Selection-Encelia.qmd
 
 format:
   html:
