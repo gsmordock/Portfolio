@@ -12,15 +12,13 @@ title: "Encelia Data"
 here::i_am("Project-Model-Selection-Encelia.qmd")
 ```
 
-**Write a few sentences about *Encelia californica*, *Encelia farinosa*, and the Fullerton Arboretum. You may also discuss what you learned about the *iris* dataset.**
+*Encelia californica* and *Encelia farinosa* are two bright yellow flowers that can be found in the Fullerton Arboretum. They can be used to restore deserts and native gardens and help with erosion control. It is important that people understand the differences between the two species if they are trying to restore areas and need the correct plant to do so. When restoring areas, it is important that the plant can flourish properly in the environment it is placed in. One of the biggest differences are when they flower. The *Encelia farinosa* flowers from February to May then August to September while *Encelia californica* flowers from February to October. Another difference is the elevations and locations where they thrive. *Encelia farinosa* can go up to 1000 meters above sea level and thrives in more inland desert regions, while the *Encelia californica* can go up to 600 meters above sea level and is found in more coastal regions.
 
-*Encelia californica* and *Encelia farinosa* are two bright yellow flowers that can be found in the Fullerton Arboretum. They can be used to restore deserts and native gardens and help with erosion control. It is important that people understand the differences between the two species if they are trying to restore areas and need the correct plant to do so. When restoring areas, it is important that the plant can flourish properly in the environment it is placed in. Both plants are similar in their environments, but there are some vital differences to make sure the plants have the best chances of survival. One of the biggest differences are when they flower. The *Encelia farinosa* flowers from February to May then August to September while *Encelia californica* flowers from February to October. Another difference is the elevations where they thrive. *Encelia farinosa* can go up to 1000 meters above sea level while the *Encelia californica* can go up to 600 meters above sea level.
-
-The Fullerton Arboretum focuses on
+The Fullerton Arboretum focuses on conserving and displaying the beauty of plants in a local community area. The Arboretum works with California State University, Fullerton to provide students with the ability to learn, research and appreciate these plants and horticulture.
 
 ## Main Objective
 
-**In your own words, describe the goal of this project.**
+With this project, we are using a few main differences of these plants to build a model that can distinguish which plant is which based on a few basic measurements.
 
 ## Packages Used In This Analysis
 
@@ -37,6 +35,8 @@ library(rsample)
 library(purrr)
 library(yardstick)
 library(tidyr)
+library(tidyverse)
+library(broom)
 ```
 
 | Package | Use |
@@ -52,23 +52,38 @@ library(tidyr)
 
 ## Design and Data Collection
 
-As a class, we went to the Fullerton Arboretum and identified the two flowers that we wanted to collect the data on. We split into pairs and collected four pieces of data on the two species: the number of rays on each flower, the diameter of the center disk, the diameter of the entire flower, and the stem length. Everything was measured in centimeters. We used a simple measuring ruler and recorded our data on a sheet of paper. The number of rays was counted individually. The diameter of the disk was measured through the center from end to end. The diameter of the entire flower was measured similarly to the disk but extended to include the rays. The stem length was measured from the bottom of the flower part of the plant to the first area that it branched off closest to the flower.
+As a class, we went to the Fullerton Arboretum and identified the two flowers that we wanted to collect the data on. We split into pairs and collected four pieces of data on the two species: the number of rays on each flower, the diameter of the center disk, the diameter of the entire flower, and the stem length. Everything was measured in centimeters. We used a simple measuring ruler and recorded our data on a sheet of paper. The number of rays was counted individually. The diameter of the disk was measured through the center from end to end. The diameter of the entire flower was measured similarly to the disk but extended to include the rays. The stem length was measured from the bottom of the flower part of the plant to the first area that it branched off closest to the flower. Each pair measured 10 flowers of each species, so in total we got 50 of each species.
 
-**Briefly describe the limitations of your data collection method. What difficulties did you (or the class collectively) have collecting the data? What choices did you (or the class collectively) make during the data collection process that someone else might choose differently?**
-
-A few limitations of the data collection was limited access. There were many flowers that could not be accessed due to the desire to respect the grounds and not create new and unnatural paths. A lot of the flowers were also close to more dangerous plants like cacti or in areas that were fenced off, so that limited the randomness of the collection. My partner and I decided to stay consistent with who was collecting the data. Since we did this, we tried to limit the variation in measuring judgement that may have occurred had we not stayed consistent, like deciding where the center of a flower was.
+A few limitations of the data collection was limited access. There were many flowers that could not be accessed due to the desire to respect the grounds and not create new and unnatural paths. A lot of the flowers were also close to more dangerous plants like cacti or in areas that were fenced off, so that limited the randomness of the collection. My partner and I decided to stay consistent with who was collecting the data. Since we did this, we tried to limit the variation in measuring judgement that may have occurred had we not stayed consistent, like deciding where the center of a flower was. Additionally, the measurements that we did were not always as accurate as we wanted them. The rulers only went so far in the parts to a whole so judgement in rounding could be different based on who did the measuring.
 
 ## Training-Test Split
 
-**There isn't much data massaging we need to do here, because we were very deliberate about how we set up our data sheet and how we recorded the data on it. However, you may need to do things like import the data and change the type of some variables.**
-
-**At the end of this section, you should write code to randomly split the Encelia data into a training and test set and explain why a training and test set are useful/necessary for this objective.**
+I'm going to read in the data and display it below.
 
 ```{r}
 library(readr)
 encelia <- read_csv("~/Documents/Math 237/Data/Encelia Classification Data Collection - Sheet1.csv")
 View(encelia)
 ```
+
+The data consists of numeric values which are the measurements of each variable in centimeters or whole numbers for the ray count, so we do not need to change anything.
+
+```{r}
+#| label: This splits the data into training and test sets. 
+set.seed(3)
+encelia_split <- initial_split(
+  encelia,
+  strata = Species,
+  prop = 0.80
+)
+
+encelia_train <- training(encelia_split)
+encelia_test <- testing(encelia_split)
+```
+
+**At the end of this section, you should write code to randomly split the Encelia data into a training and test set and explain why a training and test set are useful/necessary for this objective.**
+
+A train and test set are useful for this objective because
 
 ## Exploratory Data Analysis
 
