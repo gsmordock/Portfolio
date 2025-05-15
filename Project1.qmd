@@ -3,6 +3,12 @@ title: "Project 1"
 format: html
 ---
 
+## Motivation and Context
+
+For this project, I looked into the hospital dataset that we worked with throughout the semester. When we observed this data, the biggest questions I had in my head were these: how did we get to the final numbers of recommendation or overall score? Did certain aspects have more effects on the scores over others?
+
+**This dataset comes from**
+
 ```{r}
 ##This reads in the data as well as any packages that are necessary. 
 library(readr)
@@ -42,7 +48,11 @@ hospital_clean <- hospital |>
   )
 ```
 
+# Main Objective
+
 My goal for this project is to see what factors are the heaviest influences on the overall and recommended scores that are reported.
+
+### My Process
 
 I want to group by rating system: star rating, linear mean value, and answer percent.
 
