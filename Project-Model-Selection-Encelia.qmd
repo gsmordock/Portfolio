@@ -91,24 +91,40 @@ A training set trains the model to be able to predict the outcome, and the test 
 During the Logistic Regression with Encelia activity, we created plots that compared each of the variables to the species that it was. We knew that there were some differences to the flowers, and we were able to pinpoint the main identifiers that were different.
 
 ```{r}
+#disk diameter vs. species
 ggplot(
   data = encelia_train,
   mapping = aes(x = disk_diameter, y=Species)
   ) + 
   geom_jitter(height = 0.1)
+```
 
+The disk diameter is fairly similar for both flowers so it might not be as useful when creating our model. The model might get confused since there is not a significant difference.
+
+```{r}
+#number of rays vs. species
 ggplot(
   data = encelia_train,
   mapping = aes(x = number_rays, y=Species)
   ) + 
   geom_jitter(height = 0.1)
+```
 
+We can see that the *Encelia californica* tended to have a higher number of rays than the *Encelia farinosa*, which is a known identifier for these species.
+
+```{r}
+#ray diameter vs. species
 ggplot(
   data = encelia_train,
   mapping = aes(x = ray_diameter, y=Species)
   ) + 
   geom_jitter(height = 0.1)
+```
 
+The ray diameter seems very similar for both flowers, but the average for the *Encelia californica* was higher overall.
+
+```{r}
+#stem length vs. species
 ggplot(
   data = encelia_train,
   mapping = aes(x = stem_length, y=Species)
@@ -116,7 +132,9 @@ ggplot(
   geom_jitter(height = 0.1)
 ```
 
-Stem length for the *Encelia californica* had a wider range than the *Encelia farinosa.* With this knowledge, we could see that most of the *Encelia farinosa* had smaller stem lengths which could help us identify for our model.
+Stem length for the *Encelia californica* had a wider range than the *Encelia farinosa.* With this knowledge, we could see that most of the *Encelia farinosa* had overall smaller stem lengths which could help us identify for our model.
+
+After looking at these plots, we can see which variables might be the most important when helping our model predict the species. Before looking at the modeling, it seems like the stem length and ray diameter might be the biggest factors in predicting which species a flower is.
 
 ## Modeling
 
