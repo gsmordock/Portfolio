@@ -63,7 +63,6 @@ I'm going to read in the data and display it below.
 ```{r}
 library(readr)
 encelia <- read_csv("Data/Encelia Classification Data Collection - Sheet1.csv")
-View(encelia)
 ```
 
 The data consists of numeric values which are the measurements of each variable in centimeters or whole numbers for the ray count, so we do not need to change anything.
