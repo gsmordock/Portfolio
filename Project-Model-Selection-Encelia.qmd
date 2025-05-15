@@ -54,6 +54,8 @@ library(broom)
 
 As a class, we went to the Fullerton Arboretum and identified the two flowers that we wanted to collect the data on. We split into pairs and collected four pieces of data on the two species: the number of rays on each flower, the diameter of the center disk, the diameter of the entire flower, and the stem length. Everything was measured in centimeters. We used a simple measuring ruler and recorded our data on a sheet of paper. The number of rays was counted individually. The diameter of the disk was measured through the center from end to end. The diameter of the entire flower was measured similarly to the disk but extended to include the rays. The stem length was measured from the bottom of the flower part of the plant to the first area that it branched off closest to the flower. Each pair measured 10 flowers of each species, so in total we got 50 of each species.
 
+![](https://cdn.discordapp.com/attachments/1331417272006217847/1372688761816616960/Flower_Description.png?ex=6827af88&is=68265e08&hm=70ae0f94d23d95902bbee85b7c30c235530d535600ba497477cef587d6c8a632&)
+
 A few limitations of the data collection was limited access. There were many flowers that could not be accessed due to the desire to respect the grounds and not create new and unnatural paths. A lot of the flowers were also close to more dangerous plants like cacti or in areas that were fenced off, so that limited the randomness of the collection. My partner and I decided to stay consistent with who was collecting the data. Since we did this, we tried to limit the variation in measuring judgement that may have occurred had we not stayed consistent, like deciding where the center of a flower was. Additionally, the measurements that we did were not always as accurate as we wanted them. The rulers only went so far in the parts to a whole so judgement in rounding could be different based on who did the measuring.
 
 ## Training-Test Split
@@ -80,13 +82,41 @@ encelia_train <- training(encelia_split)
 encelia_test <- testing(encelia_split)
 ```
 
-**At the end of this section, you should write code to randomly split the Encelia data into a training and test set and explain why a training and test set are useful/necessary for this objective.**
-
-A train and test set are useful for this objective because
+A training set trains the model to be able to predict the outcome, and the test set will be put into the model to see how well it actually does predict. It will be useful for this objective because we want to build a model that can predict what species a flower is given the measurements.
 
 ## Exploratory Data Analysis
 
 **Expand on the EDA you did in the Logistic Regression with Encelia activity. Explain what is going on in your graphs and summaries and how those insights relate to the models you will be building in the next section.**
+
+During the Logistic Regression with Encelia activity, we created plots that compared each of the variables to the species that it was. We knew that there were some differences to the flowers, and we were able to pinpoint the main identifiers that were different.
+
+```{r}
+ggplot(
+  data = encelia_train,
+  mapping = aes(x = disk_diameter, y=Species)
+  ) + 
+  geom_jitter(height = 0.1)
+
+ggplot(
+  data = encelia_train,
+  mapping = aes(x = number_rays, y=Species)
+  ) + 
+  geom_jitter(height = 0.1)
+
+ggplot(
+  data = encelia_train,
+  mapping = aes(x = ray_diameter, y=Species)
+  ) + 
+  geom_jitter(height = 0.1)
+
+ggplot(
+  data = encelia_train,
+  mapping = aes(x = stem_length, y=Species)
+  ) + 
+  geom_jitter(height = 0.1)
+```
+
+Stem length for the *Encelia californica* had a wider range than the *Encelia farinosa.* With this knowledge, we could see that most of the *Encelia farinosa* had smaller stem lengths which could help us identify for our model.
 
 ## Modeling
 
