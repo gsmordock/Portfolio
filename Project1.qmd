@@ -3,7 +3,9 @@ title: "Project 1"
 format: html
 ---
 
-## Motivation and Context
+# Motivation and Context
+
+**While the objectives were described, they were not connected back to the domain context, and there was no explanation of what any of the variables of interest meant.**
 
 For this project, I looked into the hospital dataset that we worked with throughout the semester. When we observed this data, the biggest questions I had in my head were these: how did we get to the final numbers of recommendation or overall score? Did certain aspects have more effects on the scores over others?
 
@@ -17,6 +19,8 @@ library(janitor)
 hospital <- read_csv("Data/hospital.csv", na=c("Not Applicable", "Not Available"))
 #We removed any of the data that said "Not Applicable" or "Not Available" and replaced it with a N/A that would help for further data analysis. 
 ```
+
+**Although I would have liked the comments to have been moved outside the code chunks and into text, you explained both what steps were taken and why you were taking those steps.**
 
 ```{r}
 ##This is to only keeping what I find relevant in my dataset
@@ -106,8 +110,9 @@ hospital.star <- pivot_wider(hospital.star, names_from = answer, values_from = s
 
 In looking at the data, the more specific data set would be the linear mean score, hence, I will be continuing to observe with just that data set.
 
+The code below renames the variables to shorten them for further coding ease.
+
 ```{r}
-#This renames the variables to shorten them for further coding ease.
 hospital.lmv <- hospital.lmv |>
   rename(
       nurse_com = `Nurse communication - linear mean score`,
@@ -137,16 +142,18 @@ hospital.star <- hospital.star |>
   )
 ```
 
+This gets the average of the scores that could affect the overall or recommended score and creates a new column for that data point for each hospital.
+
 ```{r}
-##This gets the average of the scores that could affect the overall or recommended score and creates a new column for that data point for each hospital. 
 hospital.lmv <- hospital.lmv |>
   mutate( 
     average_score = rowMeans(subset(hospital.lmv, select = c(nurse_com, doc_com, staff_response, med_coms, discharge_info, care_transition, clean, quiet)), na.rm = TRUE)
   )
 ```
 
+The code below finds the differences in the overall and recommendation scores versus the calculated average score.
+
 ```{r}
-##This finds the differences in the overall and recommendation scores versus the calculated average score. 
 hospital.lmv <- hospital.lmv |>
   mutate(
     o.a = overall - average_score, 
@@ -158,16 +165,18 @@ The section above does not do too much for the initial goal of the project, but 
 
 Now, what I want to find is which of the variables has the most impact on the recommended and overall scores, and I will do this through a multiple linear regression model.
 
+This is my linear regression model for the given overall score.
+
 ```{r}
-#This is my linear regression model for the given overall score. 
 overall.lm <- lm(overall ~ nurse_com + doc_com +  staff_response + med_coms + discharge_info + care_transition + clean + quiet, data = hospital.lmv)
 
 summary(overall.lm)
 plot(overall.lm)
 ```
 
+Below is my linear regression model for the given reccommended score.
+
 ```{r}
-#This is my linear regression model for the given reccommended score. 
 
 rec.lm <- lm(rec ~ nurse_com + doc_com + staff_response + med_coms + discharge_info + care_transition + clean + quiet, data = hospital.lmv)
 
@@ -191,6 +200,12 @@ Lastly, I looked through the values for the predictive equation. The equations a
 
 I was curious about what variable impacts the scores the most. With these equations, there is a heavy influence from the care transition for both models.
 
-Limitations:
+# Design and Data Collection
 
-If I were to receive this data to help me choose a hospital to go to, I would rely more on the overall scores to help me make my decision over the recommended score. However, this data should not be the only research done for these hospitals. These models do not always account for every different experience that a person would get, and some may be skewed positive or skewed negative experiences. The response rates for each of the hospitals varies incredibly, which can also be a factor in what data they receive. In looking at the data collection process, it seems that most of the surveys were of a voluntary response, indicating that mostly those who are passionate about their experience will respond. This may not be truly random data and should be taken with a grain of salt.
+# Insights
+
+**Thoughtfully proposes an inferential model, explains in general how the inference works, and interprets the results appropriately**
+
+# Limitations:
+
+If I were to receive this data to help me choose a hospital to go to, I would rely more on the overall scores to help me make my decision over the recommended score. However, this data should not be the only research done for these hospitals. These models do not always account for every different experience that a person would get, and some may be skewed positive or skewed negative experiences. The response rates for each of the hospitals varies incredibly, which can also be a factor in what data they receive. In looking at the data collection process, it seems that most of the surveys were of a voluntary response, indicating that mostly those who are passionate about their experience will respond. This may not be truly random data and should be taken with a grain of salt. If used in the real world, the model would affect those who were trying to make a decision on what hospital they should use. If they tried to choose the best hospital and got one that had more skewed results, they might not get the standard of care that they anticipated which could lead to a worse experience. It could also very much rule out great hospitals that got bad reviews from some unfortunate experiences. With this, certain hospitals could get over-crowded if there are a lot of good reviews rating them higher. This in turn could cause for more bad reviews as people wait longer for their care. Overall, this model could have a lot of influence on how these hospitals perform and how the people going to these hospitals could receive their care.

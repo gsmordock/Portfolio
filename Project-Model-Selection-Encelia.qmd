@@ -138,13 +138,97 @@ After looking at these plots, we can see which variables might be the most impor
 
 ## Modeling
 
+Logistic regression is a machine model that attempts to distinguish between categories and is used for prediction. The goal of our project is to be able to distinguish which flower is which so this model will help us do that.
+
+Cross-validation is important to see how well the model works to predict what we want. It involves separating the data into training and testing sets. The training set trains the model using that data, and the testing set tests if the model really works how it should.
+
+```{r}
+#| label: build model with all predictors
+#| 
+encelia_train$Species <- as.factor(encelia_train$Species)
+
+encelia_glm1 <- glm(
+  Species ~ number_rays + disk_diameter + ray_diameter + stem_length,
+  data = encelia_train, 
+  family = "binomial"
+)
+encelia_glm1 |>
+  tidy()
+```
+
+```{r}
+#| label: build model without disk diameter
+encelia_train$Species <- as.factor(encelia_train$Species)
+
+encelia_glm2 <- glm(
+  Species ~ number_rays + ray_diameter + stem_length,
+  data = encelia_train, 
+  family = "binomial"
+)
+encelia_glm2 |>
+  tidy()
+```
+
+```{r}
+#| label: build model without number of rays
+
+encelia_train$Species <- as.factor(encelia_train$Species)
+
+encelia_glm3 <- glm(
+  Species ~ disk_diameter + ray_diameter + stem_length,
+  data = encelia_train, 
+  family = "binomial"
+)
+encelia_glm3 |>
+  tidy()
+```
+
+```{r}
+#| label: build model without ray diameter
+
+encelia_train$Species <- as.factor(encelia_train$Species)
+
+encelia_glm4 <- glm(
+  Species ~ number_rays + disk_diameter + stem_length,
+  data = encelia_train, 
+  family = "binomial"
+)
+encelia_glm4 |>
+  tidy()
+```
+
+```{r}
+#| label: build model without stem length
+
+encelia_train$Species <- as.factor(encelia_train$Species)
+
+encelia_glm5 <- glm(
+  Species ~ number_rays + disk_diameter + ray_diameter,
+  data = encelia_train, 
+  family = "binomial"
+)
+encelia_glm5 |>
+  tidy()
+```
+
+```{r}
+#| label: build model with ray count and stem length
+
+encelia_train$Species <- as.factor(encelia_train$Species)
+
+encelia_glm6 <- glm(
+  Species ~ number_rays + stem_length,
+  data = encelia_train, 
+  family = "binomial"
+)
+encelia_glm6 |>
+  tidy()
+```
+
 **Propose several logistic regression models and use cross-validation to select a best model, following the steps in the "Cross-Validation (Part 3)" video and the "Model Selection for Logistic Regression" activity.**
 
-E**xplain what your code is doing:**
+Based on the data collection, the factors I chose to put in my models seem to display the most differences between species. When creating the models, I wanted it to be able to predict as well as it could. I started with all of the predictors, then did different model with all of them but one.
 
--   **What is logistic regression? Why are you doing it?**
--   **Why did you choose each model that you are considering?**
--   **Why are you using cross-validation? How does it work?**
 -   **Which model are you selecting as the best model? Why?**
 
 **Fit the selected "best" model on the training set and make predictions on the test set. Overall, how accurately is your model making predictions?**
