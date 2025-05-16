@@ -40,7 +40,7 @@ library(broom)
 ```
 
 | Package | Use |
-|------------------------------------|------------------------------------|
+|----|----|
 | [here](https://github.com/jennybc/here_here) | to easily load and save data |
 | [readr](https://readr.tidyverse.org/) | to import the CSV file data |
 | [dplyr](https://dplyr.tidyverse.org/) | to massage and summarize data |

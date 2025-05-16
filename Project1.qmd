@@ -5,25 +5,44 @@ format: html
 
 # Motivation and Context
 
-**While the objectives were described, they were not connected back to the domain context, and there was no explanation of what any of the variables of interest meant.**
-
 For this project, I looked into the hospital dataset that we worked with throughout the semester. When we observed this data, the biggest questions I had in my head were these: how did we get to the final numbers of recommendation or overall score? Did certain aspects have more effects on the scores over others?
 
-**This dataset comes from**
+# Design and Data Collection
+
+This dataset is a list of hospital rating for the Hospital Consumer Assessment of Healthcare Providers and Systems (HCAHPS), which is a survey for patients about their most recent hospital stay. The questions asked about many variables including: cleanliness, nurse communication, doctor communication, staff responsiveness, communication about medicine, discharge information, care transition, and quietness. These variables are the explanatory variable for our model. An overall score and a recommendation score was also collected, which will be our response variable for the model. These scores were collected in three different measurements: star ratings, linear mean scores, and with descriptions. The only scoring system that was a little difficult to understand was the star ratings. According to the data dictionary, "The Overall Star Ratings are designed to assist patients, consumers, and others in comparing hospitals side-by-side... The hospitals can receive between one and five stars, with five stars being the highest rating, and the more stars, the better the hospital performs on the quality measures."
+
+This data was collected through a random sample of eligible discharges from a hospital. The eligibility includes:
+
+-   at least 18 years of age at time of admission,
+
+-   at least one overnight stay, and
+
+-   non-psychiatric MS-DRG/principal diagnosis at discharge.
+
+These patients were sampled randomly through telephone, IVR modes, and mail.
+
+# Main Objective
+
+My goal for this project is to see what factors are the heaviest influences on the overall and recommended scores that are reported using a linear regression model. I want to see which of the explanatory variables has the most impact.
+
+While linear regression models are not always the best model that can be used to predict what factor has the highest influence on an outcome, I had been learning about them in Math 435 and wanted to combine that knowledge with coding to see what the outcome would be. A logistic regression model would have made much more sense for predicting as that is what they are mainly used for.
+
+### My Process
+
+The code below reads in the data as well as any packages that are necessary for the data cleaning I did.
 
 ```{r}
-##This reads in the data as well as any packages that are necessary. 
 library(readr)
 library(tidyverse)
 library(janitor)
 hospital <- read_csv("Data/hospital.csv", na=c("Not Applicable", "Not Available"))
-#We removed any of the data that said "Not Applicable" or "Not Available" and replaced it with a N/A that would help for further data analysis. 
 ```
 
-**Although I would have liked the comments to have been moved outside the code chunks and into text, you explained both what steps were taken and why you were taking those steps.**
+We removed any of the data that said "Not Applicable" or "Not Available" and replaced it with a N/A that would help for further data analysis.
+
+Below is the code that I used to only keep the pieces of data that I thought would be relevant to my project.
 
 ```{r}
-##This is to only keeping what I find relevant in my dataset
 hospital <- hospital |>
   select(
     `Facility ID`,
@@ -37,8 +56,9 @@ hospital <- hospital |>
   )
 ```
 
+This renames the long descriptions and makes them shorter for easier coding in the future.
+
 ```{r}
-##clean the data & rename things
 hospital_clean <- hospital |>
   rename(
     answer = `HCAHPS Answer Description`,
@@ -52,16 +72,9 @@ hospital_clean <- hospital |>
   )
 ```
 
-# Main Objective
-
-My goal for this project is to see what factors are the heaviest influences on the overall and recommended scores that are reported.
-
-### My Process
-
 I want to group by rating system: star rating, linear mean value, and answer percent.
 
 ```{r}
-#This groups the data by the rating systems: star, linear mean value, and answer percent. 
 hospital.star <- hospital_clean |>
   select(
     fac_id,
@@ -101,8 +114,9 @@ hospital.answer <- hospital_clean |>
     !is.na(answer_percent))
 ```
 
+This is trying to pivot wider so that we can visualize the data in a different way that is easier to read in columns rather than multiple rows.
+
 ```{r}
-##label: This is trying to pivot wider so that we can visualize the data in a different way. 
 hospital.lmv <- pivot_wider(hospital.lmv, names_from = answer, values_from = mean_value)
 hospital.answer <- pivot_wider(hospital.answer, names_from = answer, values_from = answer_percent)
 hospital.star <- pivot_wider(hospital.star, names_from = answer, values_from = star_rating)
@@ -110,7 +124,7 @@ hospital.star <- pivot_wider(hospital.star, names_from = answer, values_from = s
 
 In looking at the data, the more specific data set would be the linear mean score, hence, I will be continuing to observe with just that data set.
 
-The code below renames the variables to shorten them for further coding ease.
+The code below renames the pivoted variables to shorten them for further coding ease.
 
 ```{r}
 hospital.lmv <- hospital.lmv |>
@@ -159,13 +173,16 @@ hospital.lmv <- hospital.lmv |>
     o.a = overall - average_score, 
     r.a = rec - average_score
   )
+head(hospital.lmv)
 ```
 
-The section above does not do too much for the initial goal of the project, but it is an interesting thing to see how they compare.
+The section above does not do too much for the initial goal of the project, but it is an interesting thing to see how the overall and recommended scores compare to the average that was calculated from the variables.
+
+One thing I noticed was that the average was mostly lower than the overall score. Only 101 out of the 3197 entries had an average that was higher than the overall score. 19 entries had no difference in their average and overall score.
 
 Now, what I want to find is which of the variables has the most impact on the recommended and overall scores, and I will do this through a multiple linear regression model.
 
-This is my linear regression model for the given overall score.
+This is my linear regression model for the given overall score using all of the factors.
 
 ```{r}
 overall.lm <- lm(overall ~ nurse_com + doc_com +  staff_response + med_coms + discharge_info + care_transition + clean + quiet, data = hospital.lmv)
@@ -174,7 +191,7 @@ summary(overall.lm)
 plot(overall.lm)
 ```
 
-Below is my linear regression model for the given reccommended score.
+Below is my linear regression model for the given reccommended score using all of the variables.
 
 ```{r}
 
@@ -198,14 +215,89 @@ Lastly, I looked through the values for the predictive equation. The equations a
 
 -   rec = -49.96 + 0.51(nurse_com) + 0.16(doc_com) - 0.05 (staff_response) - 0.12(med_coms) + 0.03 (discharge_info) + 0.96(care_transition) + 0.08(clean) + 0.03(quiet)
 
-I was curious about what variable impacts the scores the most. With these equations, there is a heavy influence from the care transition for both models.
+I want to now take a few data points and test them on the models. I randomly selected 10 hospitals to use as my testers.
 
-# Design and Data Collection
+```{r}
+hospital_testers <- sample(nrow(hospital.lmv), 10)
+```
 
-# Insights
+These numbers will be different each time the code is run, but when I sampled mine, the rows chosen were as follows:
 
-**Thoughtfully proposes an inferential model, explains in general how the inference works, and interprets the results appropriately**
+```{r}
+hospital_testers <- c(296, 190, 1857, 1686, 194, 1172, 2281, 1745, 97, 1226)
 
-# Limitations:
+hospital_test <- hospital.lmv[hospital_testers,]
+hospital_test
+```
 
-If I were to receive this data to help me choose a hospital to go to, I would rely more on the overall scores to help me make my decision over the recommended score. However, this data should not be the only research done for these hospitals. These models do not always account for every different experience that a person would get, and some may be skewed positive or skewed negative experiences. The response rates for each of the hospitals varies incredibly, which can also be a factor in what data they receive. In looking at the data collection process, it seems that most of the surveys were of a voluntary response, indicating that mostly those who are passionate about their experience will respond. This may not be truly random data and should be taken with a grain of salt. If used in the real world, the model would affect those who were trying to make a decision on what hospital they should use. If they tried to choose the best hospital and got one that had more skewed results, they might not get the standard of care that they anticipated which could lead to a worse experience. It could also very much rule out great hospitals that got bad reviews from some unfortunate experiences. With this, certain hospitals could get over-crowded if there are a lot of good reviews rating them higher. This in turn could cause for more bad reviews as people wait longer for their care. Overall, this model could have a lot of influence on how these hospitals perform and how the people going to these hospitals could receive their care.
+In trying to write a function that I could use to plug in the values, my code didn't seem to work, so I will be doing this the long way with plugging in the values individually. They will be organized by one word in the facility name as the name of the variable with an o or an r after depending on which prediction it is for.
+
+#### Overall Predictions 
+
+```{r}
+providence.o = -17.42 + 0.38*92 + 0.13*90 + 0.03*85 - 0.04*74 + 0.04*87 + 0.51*82 + 0.10*88 + 0.07*75 
+oroville.o = -17.42 + 0.38*82 + 0.13*84 + 0.03*68 - 0.04*65 + 0.04*78 + 0.51*71 + 0.10*75 + 0.07*66
+university.o = -17.42 + 0.38*85 + 0.13*88 + 0.03*71 - 0.04*67 + 0.04*79 + 0.51*76 + 0.10*77 + 0.07*76 
+columbia.o = -17.42 + 0.38*94 + 0.13*92 + 0.03*86 - 0.04*83 + 0.04*88 + 0.51*85 + 0.10*91 + 0.07*87 
+olive.o = -17.42 + 0.38*89 + 0.13*90 + 0.03*78 - 0.04*75 + 0.04*87 + 0.51*80 + 0.10*85 + 0.07*74 
+owensboro.o = -17.42 + 0.38*94 + 0.13*93 + 0.03*86 - 0.04*80 + 0.04*89 + 0.51*84 + 0.10*93 + 0.07*87 
+southwestern.o = -17.42 + 0.38*88 + 0.13*88 + 0.03*83 - 0.04*73 + 0.04*84 + 0.51*78 + 0.10*87 + 0.07*85 
+chadron.o = -17.42 + 0.38*91 + 0.13*97 + 0.03*89 - 0.04*85 + 0.04*90 + 0.51*81 + 0.10*87 + 0.07*90 
+phoenix.o = -17.42 + 0.38*93 + 0.13*94 + 0.03*87 - 0.04*80 + 0.04*85 + 0.51*80 + 0.10*85 + 0.07*85 
+louisville.o = -17.42 + 0.38*87 + 0.13*87 + 0.03*78 - 0.04*71 + 0.04*85 + 0.51*77 + 0.10*84 + 0.07*74 
+```
+
+| Hospital | Predicted Overall | Actual Overall |
+|----------------------------------------|-----------------|---------------|
+| Providence Holy Cross Medical Center | 88.18 | 90 |
+| Oroville Hospital | 75.55 | 74 |
+| The University Hospital | 80.71 | 81 |
+| Columbia Mo Va Medical Center | 91.58 | 93 |
+| LAC/Olive View-UCLA Medical Center | 85.4 | 86 |
+| Owensboro Health Muhlenberg Community Hospital | 91.56 | 93 |
+| Southwestern Medical Center | 84.82 | 86 |
+| Chadron Community Hospital and Health Services | 88.95 | 90 |
+| Phoenix Indian Medical Center | 88.2 | 90 |
+| University of Louisville Hospital | 82.7 | 84 |
+
+The predictions are very close to the actual score it received in this case.
+
+#### Recommended Predictions
+
+```{r}
+providence.r = -49.96 + 0.51*92 + 0.16*90 - 0.05*85 - 0.12*74 + 0.03*87 + 0.96*82 + 0.08*88 + 0.03*75 
+oroville.r = -49.96 + 0.51*82 + 0.16*84 - 0.05*68 - 0.12*65 + 0.03*78 + 0.96*71 + 0.08*75 + 0.03*66 
+university.r = -49.96 + 0.51*85 + 0.16*88 - 0.05*71 - 0.12*67 + 0.03*79 + 0.96*76 + 0.08*77 + 0.03*76 
+columbia.r = -49.96 + 0.51*94 + 0.16*92 - 0.05*86 - 0.12*83 + 0.03*88 + 0.96*85 + 0.08*91 + 0.03*87 
+olive.r = -49.96 + 0.51*89 + 0.16*90 - 0.05*78 - 0.12*75 + 0.03*87 + 0.96*80 + 0.08*85 + 0.03*74 
+owensboro.r = -49.96 + 0.51*94 + 0.16*93 - 0.05*86 - 0.12*80 + 0.03*89 + 0.96*84 + 0.08*93 + 0.03*87 
+southwestern.r = -49.96 + 0.51*88 + 0.16*88 - 0.05*83 - 0.12*73 + 0.03*84 + 0.96*78 + 0.08*87 + 0.03*85 
+chadron.r = -49.96 + 0.51*91 + 0.16*97 - 0.05*89 - 0.12*85 + 0.03*90 + 0.96*81 + 0.08*87 + 0.03*90 
+phoenix.r = -49.96 + 0.51*93 + 0.16*94 - 0.05*87 - 0.12*80 + 0.03*85 + 0.96*80 + 0.08*85 + 0.03*85 
+louisville.r = -49.96 + 0.51*87 + 0.16*87 - 0.05*78 - 0.12*71 + 0.03*85 + 0.96*77 + 0.08*84 + 0.03*74 
+```
+
+| Hospital | Predicted Recommended | Actual Recommended |
+|----------------------------------------|----------------|----------------|
+| Providence Holy Cross Medical Center | 88.85 | 88 |
+| Oroville Hospital | 72.58 | 69 |
+| The University Hospital | 79.65 | 79 |
+| Columbia Mo Va Medical Center | 92.57 | 92 |
+| LAC/Olive View-UCLA Medical Center | 85.36 | 86 |
+| Owensboro Health Muhlenberg Community Hospital | 92.32 | 91 |
+| Southwestern Medical Center | 83 | 85 |
+| Chadron Community Hospital and Health Services | 87.44 | 91 |
+| Phoenix Indian Medical Center | 87.26 | 86 |
+| University of Louisville Hospital | 81.32 | 82 |
+
+The recommended score has a little bit more range to the predictions.
+
+# Conclusion
+
+I was curious about what variable impacts the scores the most. With these equations, there is a heavy influence from the care transition for both models as it has the highest coefficient, and therefore influence when calculating the final score.
+
+Both linear models have pretty accurate predictions with occasional variation when tested with a random sample of hospitals.
+
+# Limitations
+
+If I were to receive this data to help me choose a hospital to go to, I would rely more on the overall scores model to help me make my decision over the recommended score. However, this data should not be the only research done for these hospitals. These models do not always account for every different experience that a person would get, and some may be skewed positive or skewed negative experiences. The response rates for each of the hospitals varies incredibly, which can also be a factor in what data they receive. In looking at the data collection process, it seems that most of the surveys were of a voluntary response, indicating that mostly those who are passionate about their experience will respond. This may not be truly random data and should be taken with a grain of salt. If used in the real world, the model would affect those who were trying to make a decision on what hospital they should use. If someone tried to choose the best hospital and got one that had more skewed results, they might not get the standard of care that they anticipated which could lead to a worse experience. It could also very much rule out great hospitals that got bad reviews from some unfortunate experiences. With this, certain hospitals could get over-crowded if there are a lot of good reviews rating them higher. This in turn could cause for more bad reviews as people wait longer for their care. Overall, this model could have a lot of influence on how these hospitals perform and how the people going to these hospitals could receive their care.
