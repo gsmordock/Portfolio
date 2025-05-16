@@ -159,6 +159,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#my-process" id="toc-my-process" class="nav-link" data-scroll-target="#my-process">My Process</a></li>
   </ul></li>
+  <li><a href="#design-and-data-collection" id="toc-design-and-data-collection" class="nav-link" data-scroll-target="#design-and-data-collection">Design and Data Collection</a></li>
+  <li><a href="#insights" id="toc-insights" class="nav-link" data-scroll-target="#insights">Insights</a></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations:</a></li>
   </ul>
 </nav>
     </div>
@@ -184,8 +187,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="motivation-and-context" class="level2">
-<h2 class="anchored" data-anchor-id="motivation-and-context">Motivation and Context</h2>
+<section id="motivation-and-context" class="level1">
+<h1>Motivation and Context</h1>
+<p><strong>While the objectives were described, they were not connected back to the domain context, and there was no explanation of what any of the variables of interest meant.</strong></p>
 <p>For this project, I looked into the hospital dataset that we worked with throughout the semester. When we observed this data, the biggest questions I had in my head were these: how did we get to the final numbers of recommendation or overall score? Did certain aspects have more effects on the scores over others?</p>
 <p><strong>This dataset comes from</strong></p>
 <div class="cell">
@@ -231,6 +235,7 @@ dbl  (6): Patient Survey Star Rating, Patient Survey Star Rating Footnote, H...
 </div>
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#We removed any of the data that said "Not Applicable" or "Not Available" and replaced it with a N/A that would help for further data analysis. </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p><strong>Although I would have liked the comments to have been moved outside the code chunks and into text, you explained both what steps were taken and why you were taking those steps.</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="do">##This is to only keeping what I find relevant in my dataset</span></span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>hospital <span class="ot">&lt;-</span> hospital <span class="sc">|&gt;</span></span>
@@ -313,58 +318,58 @@ dbl  (6): Patient Survey Star Rating, Patient Survey Star Rating Footnote, H...
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>hospital.star <span class="ot">&lt;-</span> <span class="fu">pivot_wider</span>(hospital.star, <span class="at">names_from =</span> answer, <span class="at">values_from =</span> star_rating)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>In looking at the data, the more specific data set would be the linear mean score, hence, I will be continuing to observe with just that data set.</p>
+<p>The code below renames the variables to shorten them for further coding ease.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">#This renames the variables to shorten them for further coding ease.</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>hospital.lmv <span class="ot">&lt;-</span> hospital.lmv <span class="sc">|&gt;</span></span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">nurse_com =</span> <span class="st">`</span><span class="at">Nurse communication - linear mean score</span><span class="st">`</span>,</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">doc_com =</span> <span class="st">`</span><span class="at">Doctor communication - linear mean score</span><span class="st">`</span>,</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">staff_response =</span> <span class="st">`</span><span class="at">Staff responsiveness - linear mean score</span><span class="st">`</span>,</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">med_coms =</span> <span class="st">`</span><span class="at">Communication about medicines - linear mean score</span><span class="st">`</span>, </span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">discharge_info =</span> <span class="st">`</span><span class="at">Discharge information - linear mean score</span><span class="st">`</span>,</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">care_transition =</span> <span class="st">`</span><span class="at">Care transition - linear mean score</span><span class="st">`</span>,</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">clean =</span> <span class="st">`</span><span class="at">Cleanliness - linear mean score</span><span class="st">`</span>,</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">quiet =</span> <span class="st">`</span><span class="at">Quietness - linear mean score</span><span class="st">`</span>,</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">overall =</span> <span class="st">`</span><span class="at">Overall hospital rating - linear mean score</span><span class="st">`</span>,</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">rec =</span> <span class="st">`</span><span class="at">Recommend hospital - linear mean score</span><span class="st">`</span></span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>hospital.star <span class="ot">&lt;-</span> hospital.star <span class="sc">|&gt;</span></span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">nurse_com =</span> <span class="st">`</span><span class="at">Nurse communication - star rating</span><span class="st">`</span>,</span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">doc_com =</span> <span class="st">`</span><span class="at">Doctor communication - star rating</span><span class="st">`</span>,</span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">staff_response =</span> <span class="st">`</span><span class="at">Staff responsiveness - star rating</span><span class="st">`</span>,</span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">med_coms =</span> <span class="st">`</span><span class="at">Communication about medicines - star rating</span><span class="st">`</span>, </span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">discharge_info =</span> <span class="st">`</span><span class="at">Discharge information - star rating</span><span class="st">`</span>,</span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">care_transition =</span> <span class="st">`</span><span class="at">Care transition - star rating</span><span class="st">`</span>,</span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>      <span class="at">clean =</span> <span class="st">`</span><span class="at">Cleanliness - star rating</span><span class="st">`</span>,</span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>      <span class="at">quiet =</span> <span class="st">`</span><span class="at">Quietness - star rating</span><span class="st">`</span>,</span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>      <span class="at">overall =</span> <span class="st">`</span><span class="at">Overall hospital rating - star rating</span><span class="st">`</span>,</span>
-<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>      <span class="at">rec =</span> <span class="st">`</span><span class="at">Recommend hospital - star rating</span><span class="st">`</span></span>
-<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>hospital.lmv <span class="ot">&lt;-</span> hospital.lmv <span class="sc">|&gt;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">nurse_com =</span> <span class="st">`</span><span class="at">Nurse communication - linear mean score</span><span class="st">`</span>,</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">doc_com =</span> <span class="st">`</span><span class="at">Doctor communication - linear mean score</span><span class="st">`</span>,</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">staff_response =</span> <span class="st">`</span><span class="at">Staff responsiveness - linear mean score</span><span class="st">`</span>,</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">med_coms =</span> <span class="st">`</span><span class="at">Communication about medicines - linear mean score</span><span class="st">`</span>, </span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">discharge_info =</span> <span class="st">`</span><span class="at">Discharge information - linear mean score</span><span class="st">`</span>,</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">care_transition =</span> <span class="st">`</span><span class="at">Care transition - linear mean score</span><span class="st">`</span>,</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">clean =</span> <span class="st">`</span><span class="at">Cleanliness - linear mean score</span><span class="st">`</span>,</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">quiet =</span> <span class="st">`</span><span class="at">Quietness - linear mean score</span><span class="st">`</span>,</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">overall =</span> <span class="st">`</span><span class="at">Overall hospital rating - linear mean score</span><span class="st">`</span>,</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">rec =</span> <span class="st">`</span><span class="at">Recommend hospital - linear mean score</span><span class="st">`</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>hospital.star <span class="ot">&lt;-</span> hospital.star <span class="sc">|&gt;</span></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>      <span class="at">nurse_com =</span> <span class="st">`</span><span class="at">Nurse communication - star rating</span><span class="st">`</span>,</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">doc_com =</span> <span class="st">`</span><span class="at">Doctor communication - star rating</span><span class="st">`</span>,</span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">staff_response =</span> <span class="st">`</span><span class="at">Staff responsiveness - star rating</span><span class="st">`</span>,</span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">med_coms =</span> <span class="st">`</span><span class="at">Communication about medicines - star rating</span><span class="st">`</span>, </span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">discharge_info =</span> <span class="st">`</span><span class="at">Discharge information - star rating</span><span class="st">`</span>,</span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">care_transition =</span> <span class="st">`</span><span class="at">Care transition - star rating</span><span class="st">`</span>,</span>
+<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">clean =</span> <span class="st">`</span><span class="at">Cleanliness - star rating</span><span class="st">`</span>,</span>
+<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>      <span class="at">quiet =</span> <span class="st">`</span><span class="at">Quietness - star rating</span><span class="st">`</span>,</span>
+<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>      <span class="at">overall =</span> <span class="st">`</span><span class="at">Overall hospital rating - star rating</span><span class="st">`</span>,</span>
+<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>      <span class="at">rec =</span> <span class="st">`</span><span class="at">Recommend hospital - star rating</span><span class="st">`</span></span>
+<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>This gets the average of the scores that could affect the overall or recommended score and creates a new column for that data point for each hospital.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="do">##This gets the average of the scores that could affect the overall or recommended score and creates a new column for that data point for each hospital. </span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>hospital.lmv <span class="ot">&lt;-</span> hospital.lmv <span class="sc">|&gt;</span></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>( </span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">average_score =</span> <span class="fu">rowMeans</span>(<span class="fu">subset</span>(hospital.lmv, <span class="at">select =</span> <span class="fu">c</span>(nurse_com, doc_com, staff_response, med_coms, discharge_info, care_transition, clean, quiet)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>hospital.lmv <span class="ot">&lt;-</span> hospital.lmv <span class="sc">|&gt;</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>( </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">average_score =</span> <span class="fu">rowMeans</span>(<span class="fu">subset</span>(hospital.lmv, <span class="at">select =</span> <span class="fu">c</span>(nurse_com, doc_com, staff_response, med_coms, discharge_info, care_transition, clean, quiet)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>The code below finds the differences in the overall and recommendation scores versus the calculated average score.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="do">##This finds the differences in the overall and recommendation scores versus the calculated average score. </span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>hospital.lmv <span class="ot">&lt;-</span> hospital.lmv <span class="sc">|&gt;</span></span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">o.a =</span> overall <span class="sc">-</span> average_score, </span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">r.a =</span> rec <span class="sc">-</span> average_score</span>
-<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>hospital.lmv <span class="ot">&lt;-</span> hospital.lmv <span class="sc">|&gt;</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">o.a =</span> overall <span class="sc">-</span> average_score, </span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">r.a =</span> rec <span class="sc">-</span> average_score</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The section above does not do too much for the initial goal of the project, but it is an interesting thing to see how they compare.</p>
 <p>Now, what I want to find is which of the variables has the most impact on the recommended and overall scores, and I will do this through a multiple linear regression model.</p>
+<p>This is my linear regression model for the given overall score.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co">#This is my linear regression model for the given overall score. </span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>overall.lm <span class="ot">&lt;-</span> <span class="fu">lm</span>(overall <span class="sc">~</span> nurse_com <span class="sc">+</span> doc_com <span class="sc">+</span>  staff_response <span class="sc">+</span> med_coms <span class="sc">+</span> discharge_info <span class="sc">+</span> care_transition <span class="sc">+</span> clean <span class="sc">+</span> quiet, <span class="at">data =</span> hospital.lmv)</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(overall.lm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>overall.lm <span class="ot">&lt;-</span> <span class="fu">lm</span>(overall <span class="sc">~</span> nurse_com <span class="sc">+</span> doc_com <span class="sc">+</span>  staff_response <span class="sc">+</span> med_coms <span class="sc">+</span> discharge_info <span class="sc">+</span> care_transition <span class="sc">+</span> clean <span class="sc">+</span> quiet, <span class="at">data =</span> hospital.lmv)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(overall.lm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -424,12 +429,11 @@ F-statistic:  2440 on 8 and 3188 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 </div>
+<p>Below is my linear regression model for the given reccommended score.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co">#This is my linear regression model for the given reccommended score. </span></span>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>rec.lm <span class="ot">&lt;-</span> <span class="fu">lm</span>(rec <span class="sc">~</span> nurse_com <span class="sc">+</span> doc_com <span class="sc">+</span> staff_response <span class="sc">+</span> med_coms <span class="sc">+</span> discharge_info <span class="sc">+</span> care_transition <span class="sc">+</span> clean <span class="sc">+</span> quiet, <span class="at">data =</span> hospital.lmv)</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>rec.lm <span class="ot">&lt;-</span> <span class="fu">lm</span>(rec <span class="sc">~</span> nurse_com <span class="sc">+</span> doc_com <span class="sc">+</span> staff_response <span class="sc">+</span> med_coms <span class="sc">+</span> discharge_info <span class="sc">+</span> care_transition <span class="sc">+</span> clean <span class="sc">+</span> quiet, <span class="at">data =</span> hospital.lmv)</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(rec.lm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(rec.lm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -498,11 +502,20 @@ F-statistic:  1423 on 8 and 3188 DF,  p-value: &lt; 2.2e-16</code></pre>
 <li><p>rec = -49.96 + 0.51(nurse_com) + 0.16(doc_com) - 0.05 (staff_response) - 0.12(med_coms) + 0.03 (discharge_info) + 0.96(care_transition) + 0.08(clean) + 0.03(quiet)</p></li>
 </ul>
 <p>I was curious about what variable impacts the scores the most. With these equations, there is a heavy influence from the care transition for both models.</p>
-<p>Limitations:</p>
-<p>If I were to receive this data to help me choose a hospital to go to, I would rely more on the overall scores to help me make my decision over the recommended score. However, this data should not be the only research done for these hospitals. These models do not always account for every different experience that a person would get, and some may be skewed positive or skewed negative experiences. The response rates for each of the hospitals varies incredibly, which can also be a factor in what data they receive. In looking at the data collection process, it seems that most of the surveys were of a voluntary response, indicating that mostly those who are passionate about their experience will respond. This may not be truly random data and should be taken with a grain of salt.</p>
-
-
 </section>
+</section>
+<section id="design-and-data-collection" class="level1">
+<h1>Design and Data Collection</h1>
+</section>
+<section id="insights" class="level1">
+<h1>Insights</h1>
+<p><strong>Thoughtfully proposes an inferential model, explains in general how the inference works, and interprets the results appropriately</strong></p>
+</section>
+<section id="limitations" class="level1">
+<h1>Limitations:</h1>
+<p>If I were to receive this data to help me choose a hospital to go to, I would rely more on the overall scores to help me make my decision over the recommended score. However, this data should not be the only research done for these hospitals. These models do not always account for every different experience that a person would get, and some may be skewed positive or skewed negative experiences. The response rates for each of the hospitals varies incredibly, which can also be a factor in what data they receive. In looking at the data collection process, it seems that most of the surveys were of a voluntary response, indicating that mostly those who are passionate about their experience will respond. This may not be truly random data and should be taken with a grain of salt. If used in the real world, the model would affect those who were trying to make a decision on what hospital they should use. If they tried to choose the best hospital and got one that had more skewed results, they might not get the standard of care that they anticipated which could lead to a worse experience. It could also very much rule out great hospitals that got bad reviews from some unfortunate experiences. With this, certain hospitals could get over-crowded if there are a lot of good reviews rating them higher. This in turn could cause for more bad reviews as people wait longer for their care. Overall, this model could have a lot of influence on how these hospitals perform and how the people going to these hospitals could receive their care.</p>
+
+
 </section>
 
 </main> <!-- /main -->

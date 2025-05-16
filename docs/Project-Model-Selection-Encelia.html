@@ -275,32 +275,52 @@ dbl (4): number_rays, disk_diameter, ray_diameter, stem_length
 ℹ Use `spec()` to retrieve the full column specification for this data.
 ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>encelia <span class="ot">&lt;-</span> encelia<span class="sc">|&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">Species =</span> Species <span class="sc">|&gt;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>      <span class="fu">as.factor</span>()</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="fu">contrasts</span>(encelia<span class="sc">$</span>Species)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  F
+C 0
+F 1</code></pre>
+</div>
 </div>
 <p>The data consists of numeric values which are the measurements of each variable in centimeters or whole numbers for the ray count, so we do not need to change anything.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">3</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>encelia_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  encelia,</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">strata =</span> Species,</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">prop =</span> <span class="fl">0.80</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>encelia_train <span class="ot">&lt;-</span> <span class="fu">training</span>(encelia_split)</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>encelia_test <span class="ot">&lt;-</span> <span class="fu">testing</span>(encelia_split)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">3</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>encelia_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  encelia,</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">strata =</span> Species,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">prop =</span> <span class="fl">0.80</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>encelia_train <span class="ot">&lt;-</span> <span class="fu">training</span>(encelia_split)</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>encelia_test <span class="ot">&lt;-</span> <span class="fu">testing</span>(encelia_split)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>encelia_train<span class="sc">$</span>Species <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(encelia_train<span class="sc">$</span>Species)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="co">#This creates the folds for later.</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>encelia_cv <span class="ot">&lt;-</span> encelia_train <span class="sc">|&gt;</span></span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">vfold_cv</span>(</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">v=</span><span class="dv">4</span>, <span class="co">#4 fold cross-validation</span></span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">repeats =</span> <span class="dv">1</span> <span class="co">#gives one unique prediction per observation in the training set</span></span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>A training set trains the model to be able to predict the outcome, and the test set will be put into the model to see how well it actually does predict. It will be useful for this objective because we want to build a model that can predict what species a flower is given the measurements.</p>
+<p>A training set trains the model to be able to predict the outcome, and the test set will be put into the model to see how well it actually does predict. It will be useful for this objective because we want to build a model that can predict what species a flower is given the measurements. Additionally, I created the folds in the set that we can use to get the predictions.</p>
 </section>
 <section id="exploratory-data-analysis" class="level2">
 <h2 class="anchored" data-anchor-id="exploratory-data-analysis">Exploratory Data Analysis</h2>
-<p><strong>Expand on the EDA you did in the Logistic Regression with Encelia activity. Explain what is going on in your graphs and summaries and how those insights relate to the models you will be building in the next section.</strong></p>
-<p>During the Logistic Regression with Encelia activity, we created plots that compared each of the variables to the species that it was. We knew that there were some differences to the flowers, and we were able to pinpoint the main identifiers that were different.</p>
+<p>During the Logistic Regression with Encelia activity, we created plots that compared each of the variables to the species that it was. We knew that there were some differences to the flowers, and we were able to pinpoint the main identifiers that were different by comparing the two species. The graphs will help to identify which variables we should consider choosing for our model.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co">#disk diameter vs. species</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> encelia_train,</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> disk_diameter, <span class="at">y=</span>Species)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span> </span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">height =</span> <span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#disk diameter vs. species</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> encelia_train,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> disk_diameter, <span class="at">y=</span>Species)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span> </span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">height =</span> <span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -311,12 +331,12 @@ dbl (4): number_rays, disk_diameter, ray_diameter, stem_length
 </div>
 <p>The disk diameter is fairly similar for both flowers so it might not be as useful when creating our model. The model might get confused since there is not a significant difference.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">#number of rays vs. species</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> encelia_train,</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> number_rays, <span class="at">y=</span>Species)</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span> </span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">height =</span> <span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#number of rays vs. species</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> encelia_train,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> number_rays, <span class="at">y=</span>Species)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span> </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">height =</span> <span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -327,12 +347,12 @@ dbl (4): number_rays, disk_diameter, ray_diameter, stem_length
 </div>
 <p>We can see that the <em>Encelia californica</em> tended to have a higher number of rays than the <em>Encelia farinosa</em>, which is a known identifier for these species.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co">#ray diameter vs. species</span></span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> encelia_train,</span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> ray_diameter, <span class="at">y=</span>Species)</span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span> </span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">height =</span> <span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#ray diameter vs. species</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> encelia_train,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> ray_diameter, <span class="at">y=</span>Species)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span> </span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">height =</span> <span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -343,12 +363,12 @@ dbl (4): number_rays, disk_diameter, ray_diameter, stem_length
 </div>
 <p>The ray diameter seems very similar for both flowers, but the average for the <em>Encelia californica</em> was higher overall.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#stem length vs. species</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> encelia_train,</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> stem_length, <span class="at">y=</span>Species)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span> </span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">height =</span> <span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">#stem length vs. species</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> encelia_train,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> stem_length, <span class="at">y=</span>Species)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span> </span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_jitter</span>(<span class="at">height =</span> <span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: Removed 16 rows containing missing values or values outside the scale range
 (`geom_point()`).</code></pre>
@@ -369,136 +389,189 @@ dbl (4): number_rays, disk_diameter, ray_diameter, stem_length
 <p>Logistic regression is a machine model that attempts to distinguish between categories and is used for prediction. The goal of our project is to be able to distinguish which flower is which so this model will help us do that.</p>
 <p>Cross-validation is important to see how well the model works to predict what we want. It involves separating the data into training and testing sets. The training set trains the model using that data, and the testing set tests if the model really works how it should.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>encelia_train<span class="sc">$</span>Species <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(encelia_train<span class="sc">$</span>Species)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>encelia_glm1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  Species <span class="sc">~</span> number_rays <span class="sc">+</span> disk_diameter <span class="sc">+</span> ray_diameter <span class="sc">+</span> stem_length,</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> encelia_train, </span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>encelia_glm1 <span class="sc">|&gt;</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 5 × 5
-  term          estimate std.error statistic p.value
-  &lt;chr&gt;            &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
-1 (Intercept)     25.3      12.7        1.98  0.0474
-2 number_rays     -1.55      0.713     -2.18  0.0292
-3 disk_diameter   15.9       8.60       1.85  0.0639
-4 ray_diameter    -3.89      2.10      -1.86  0.0636
-5 stem_length     -0.474     0.220     -2.15  0.0315</code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>encelia_train<span class="sc">$</span>Species <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(encelia_train<span class="sc">$</span>Species)</span>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>encelia_prediction <span class="ot">&lt;-</span> <span class="cf">function</span>(split) {</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>encelia_glm2 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  Species <span class="sc">~</span> number_rays <span class="sc">+</span> ray_diameter <span class="sc">+</span> stem_length,</span>
-<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> encelia_train, </span>
-<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
-<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>encelia_glm2 <span class="sc">|&gt;</span></span>
-<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co">#Step 1: create the training and validation sets </span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>train <span class="ot">&lt;-</span> <span class="fu">analysis</span>(split)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>valid <span class="ot">&lt;-</span> <span class="fu">assessment</span>(split)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co">#Step 2: Fit all the models on the training set</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>encelia_glm1 <span class="ot">&lt;-</span> <span class="fu">glm</span>(Species <span class="sc">~</span> number_rays <span class="sc">+</span> disk_diameter <span class="sc">+</span> ray_diameter <span class="sc">+</span> stem_length, <span class="at">data =</span> train, <span class="at">family =</span> <span class="st">"binomial"</span>)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>encelia_glm2 <span class="ot">&lt;-</span> <span class="fu">glm</span>(Species <span class="sc">~</span> number_rays <span class="sc">+</span> ray_diameter <span class="sc">+</span> stem_length, <span class="at">data =</span> train, <span class="at">family =</span> <span class="st">"binomial"</span>)</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>encelia_glm3 <span class="ot">&lt;-</span> <span class="fu">glm</span>(Species <span class="sc">~</span> disk_diameter <span class="sc">+</span> ray_diameter <span class="sc">+</span> stem_length, <span class="at">data =</span> train, <span class="at">family =</span> <span class="st">"binomial"</span>)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>encelia_glm4 <span class="ot">&lt;-</span> <span class="fu">glm</span>(Species <span class="sc">~</span> number_rays <span class="sc">+</span> disk_diameter <span class="sc">+</span> stem_length, <span class="at">data =</span> train, <span class="at">family =</span> <span class="st">"binomial"</span>)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>encelia_glm5 <span class="ot">&lt;-</span> <span class="fu">glm</span>(Species <span class="sc">~</span> number_rays <span class="sc">+</span> disk_diameter <span class="sc">+</span> ray_diameter, <span class="at">data =</span> train, <span class="at">family =</span> <span class="st">"binomial"</span>)</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>encelia_glm6 <span class="ot">&lt;-</span> <span class="fu">glm</span>(Species <span class="sc">~</span> number_rays <span class="sc">+</span> stem_length, <span class="at">data =</span> train, <span class="at">family =</span> <span class="st">"binomial"</span>)</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>encelia_null <span class="ot">&lt;-</span> <span class="fu">glm</span>(Species <span class="sc">~</span><span class="dv">1</span>, <span class="at">data =</span> train, <span class="at">family =</span> <span class="st">"binomial"</span>)</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="co">#Step 3: Make all the predictions on the validation set</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>valid_predictions <span class="ot">&lt;-</span> valid <span class="sc">|&gt;</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">pred_all =</span> <span class="fu">predict</span>(encelia_glm1, <span class="at">newdata =</span> valid, <span class="at">type =</span> <span class="st">"response"</span>), </span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">pred_no_disk =</span> <span class="fu">predict</span>(encelia_glm2, <span class="at">newdata =</span> valid, <span class="at">type =</span> <span class="st">"response"</span>), </span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">pred_no_rays =</span> <span class="fu">predict</span>(encelia_glm3, <span class="at">newdata =</span> valid, <span class="at">type =</span> <span class="st">"response"</span>),</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">pred_no_diameter =</span> <span class="fu">predict</span>(encelia_glm4, <span class="at">newdata =</span> valid, <span class="at">type =</span> <span class="st">"response"</span>),</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">pred_no_stem =</span> <span class="fu">predict</span>(encelia_glm5, <span class="at">newdata =</span> valid, <span class="at">type =</span> <span class="st">"response"</span>),</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">pred_2 =</span> <span class="fu">predict</span>(encelia_glm6, <span class="at">newdata =</span> valid, <span class="at">type =</span> <span class="st">"response"</span>),</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">pred_null =</span> <span class="fu">predict</span>(encelia_null, <span class="at">newdata =</span> valid, <span class="at">type =</span> <span class="st">"response"</span>)</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a><span class="fu">return</span>(valid_predictions)</span>
+<span id="cb12-28"><a href="#cb12-28" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">#This runs the function on the splits.</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>mapped_pred <span class="ot">&lt;-</span> <span class="fu">map</span>(</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  encelia_cv<span class="sc">$</span>splits, </span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  encelia_prediction</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: glm.fit: algorithm did not converge</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>mapped_pred_df <span class="ot">&lt;-</span> mapped_pred <span class="sc">|&gt;</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_rows</span>(</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">.id =</span> <span class="st">"fold"</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>mapped_pred_df <span class="sc">|&gt;</span></span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    fold, Species, pred_all, pred_no_disk, pred_no_rays, pred_no_diameter, pred_no_stem, pred_2, pred_null</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 4 × 5
-  term         estimate std.error statistic p.value
-  &lt;chr&gt;           &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
-1 (Intercept)    20.4       7.41       2.76 0.00579
-2 number_rays    -0.705     0.331     -2.13 0.0332 
-3 ray_diameter   -1.35      1.01      -1.34 0.181  
-4 stem_length    -0.329     0.103     -3.19 0.00144</code></pre>
+<pre><code># A tibble: 79 × 9
+   fold  Species  pred_all pred_no_disk pred_no_rays pred_no_diameter
+   &lt;chr&gt; &lt;fct&gt;       &lt;dbl&gt;        &lt;dbl&gt;        &lt;dbl&gt;            &lt;dbl&gt;
+ 1 1     C        1.55e- 3      9.79e-3     4.62e- 3         7.99e- 3
+ 2 1     C        8.43e- 6      3.16e-2     2.97e- 4         1.29e- 3
+ 3 1     C        1.46e- 2      2.99e-2     2.73e- 5         4.59e- 5
+ 4 1     C        4.52e- 5      5.60e-4     2.63e- 5         5.21e- 4
+ 5 1     C       NA            NA          NA               NA       
+ 6 1     C       NA            NA          NA               NA       
+ 7 1     C       NA            NA          NA               NA       
+ 8 1     C        1.68e- 5      1.60e-5     6.56e- 4         5.55e- 2
+ 9 1     C        2.22e-16      6.17e-9     2.45e-12         2.02e-11
+10 1     C        2.59e- 3      1.28e-2     7.08e- 1         4.76e- 1
+# ℹ 69 more rows
+# ℹ 3 more variables: pred_no_stem &lt;dbl&gt;, pred_2 &lt;dbl&gt;, pred_null &lt;dbl&gt;</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>encelia_train<span class="sc">$</span>Species <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(encelia_train<span class="sc">$</span>Species)</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>encelia_glm3 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  Species <span class="sc">~</span> disk_diameter <span class="sc">+</span> ray_diameter <span class="sc">+</span> stem_length,</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> encelia_train, </span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>encelia_glm3 <span class="sc">|&gt;</span></span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Predictions in long form that we will eventually shorten</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>predictions <span class="ot">&lt;-</span> mapped_pred_df <span class="sc">|&gt;</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">starts_with</span> (<span class="st">"pred"</span>),</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"model"</span>,</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">".pred_F"</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">.pred_C =</span> <span class="dv">1</span> <span class="sc">-</span> .pred_F</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>predictions <span class="sc">|&gt;</span></span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>    model, fold, Species, .pred_C, .pred_F</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 4 × 5
-  term          estimate std.error statistic  p.value
-  &lt;chr&gt;            &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
-1 (Intercept)      6.01      3.55       1.69 0.0906  
-2 disk_diameter    2.22      1.82       1.22 0.223   
-3 ray_diameter    -0.811     0.588     -1.38 0.168   
-4 stem_length     -0.384     0.109     -3.53 0.000414</code></pre>
+<pre><code># A tibble: 553 × 5
+   model            fold  Species .pred_C    .pred_F
+   &lt;chr&gt;            &lt;chr&gt; &lt;fct&gt;     &lt;dbl&gt;      &lt;dbl&gt;
+ 1 pred_all         1     C         0.998 0.00155   
+ 2 pred_no_disk     1     C         0.990 0.00979   
+ 3 pred_no_rays     1     C         0.995 0.00462   
+ 4 pred_no_diameter 1     C         0.992 0.00799   
+ 5 pred_no_stem     1     C         0.655 0.345     
+ 6 pred_2           1     C         0.987 0.0134    
+ 7 pred_null        1     C         0.475 0.525     
+ 8 pred_all         1     C         1.00  0.00000843
+ 9 pred_no_disk     1     C         0.968 0.0316    
+10 pred_no_rays     1     C         1.00  0.000297  
+# ℹ 543 more rows</code></pre>
 </div>
+</div>
+<p>The code below will give us the average Brier score which we can use measure the accuracy of our predictions.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>brier_all_models <span class="ot">&lt;-</span> predictions <span class="sc">|&gt;</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(model, fold) <span class="sc">|&gt;</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">brier_class</span>(</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">truth =</span> Species,</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    .pred_C</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>brier_all_models <span class="sc">|&gt;</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(model) <span class="sc">|&gt;</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_brier =</span> <span class="fu">mean</span>(.estimate),</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">se_brier =</span> <span class="fu">sd</span>(.estimate)<span class="sc">/</span><span class="fu">sqrt</span>(<span class="dv">4</span>) <span class="co">#4 estimates</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|&gt;</span></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(mean_brier)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 7 × 3
+  model            mean_brier se_brier
+  &lt;chr&gt;                 &lt;dbl&gt;    &lt;dbl&gt;
+1 pred_all             0.0729  0.0258 
+2 pred_no_disk         0.0781  0.0162 
+3 pred_no_diameter     0.0807  0.0210 
+4 pred_2               0.0813  0.0189 
+5 pred_no_rays         0.0981  0.0244 
+6 pred_no_stem         0.122   0.0188 
+7 pred_null            0.255   0.00255</code></pre>
+</div>
+</div>
+<p>Based on the data collection, the factors I chose to put in my models seem to display the most differences between species. When creating the models, I wanted it to be able to predict as well as it could. I started with all of the predictors, then did different model with all of them but one. In this case, we want the model that has the lowest mean brier score, which was using all of the factors. Now, what we do is we fit the final model and test using that model.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>encelia_final_glm <span class="ot">&lt;-</span> <span class="fu">glm</span>(Species <span class="sc">~</span> number_rays <span class="sc">+</span> disk_diameter <span class="sc">+</span> ray_diameter <span class="sc">+</span> stem_length, <span class="at">data =</span> encelia_train, <span class="at">family =</span> <span class="st">"binomial"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>encelia_train<span class="sc">$</span>Species <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(encelia_train<span class="sc">$</span>Species)</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>encelia_glm4 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  Species <span class="sc">~</span> number_rays <span class="sc">+</span> disk_diameter <span class="sc">+</span> stem_length,</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> encelia_train, </span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>encelia_glm4 <span class="sc">|&gt;</span></span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>encelia_prediction <span class="ot">&lt;-</span> encelia_final_glm <span class="sc">|&gt;</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">augment</span>(<span class="at">newdata =</span> encelia_test, <span class="at">type.predict =</span> <span class="st">"response"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">.pred_F =</span> .fitted,</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">.pred_C =</span> <span class="dv">1</span> <span class="sc">-</span> .pred_F,</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">.pred_species =</span> <span class="fu">if_else</span>(.fitted <span class="sc">&gt;=</span> <span class="fl">0.5</span>, <span class="st">"F"</span>, <span class="st">"C"</span>)<span class="sc">|&gt;</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>      <span class="fu">as.factor</span>()</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>encelia_prediction <span class="sc">|&gt;</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Species, .pred_species, .pred_C, .pred_F)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 4 × 5
-  term          estimate std.error statistic p.value
-  &lt;chr&gt;            &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;
-1 (Intercept)     10.9       5.39       2.02 0.0437 
-2 number_rays     -0.883     0.363     -2.43 0.0150 
-3 disk_diameter    5.44      3.03       1.79 0.0727 
-4 stem_length     -0.446     0.150     -2.98 0.00290</code></pre>
+<pre><code># A tibble: 21 × 4
+   Species .pred_species   .pred_C     .pred_F
+   &lt;fct&gt;   &lt;fct&gt;             &lt;dbl&gt;       &lt;dbl&gt;
+ 1 F       F             0.00224   0.998      
+ 2 C       C             1.00      0.000289   
+ 3 C       F             0.0000531 1.00       
+ 4 F       F             0.000784  0.999      
+ 5 C       C             1.00      0.000000154
+ 6 C       C             0.987     0.0133     
+ 7 F       F             0.0000143 1.00       
+ 8 F       F             0.000376  1.00       
+ 9 F       F             0.0000747 1.00       
+10 C       F             0.225     0.775      
+# ℹ 11 more rows</code></pre>
 </div>
 </div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>encelia_train<span class="sc">$</span>Species <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(encelia_train<span class="sc">$</span>Species)</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>encelia_glm5 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
-<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  Species <span class="sc">~</span> number_rays <span class="sc">+</span> disk_diameter <span class="sc">+</span> ray_diameter,</span>
-<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> encelia_train, </span>
-<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
-<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>encelia_glm5 <span class="sc">|&gt;</span></span>
-<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 4 × 5
-  term          estimate std.error statistic   p.value
-  &lt;chr&gt;            &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
-1 (Intercept)     11.2       3.03       3.68 0.000230 
-2 number_rays     -0.635     0.157     -4.04 0.0000533
-3 disk_diameter    4.24      1.64       2.58 0.00983  
-4 ray_diameter    -1.76      0.471     -3.73 0.000188 </code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>encelia_train<span class="sc">$</span>Species <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(encelia_train<span class="sc">$</span>Species)</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>encelia_glm6 <span class="ot">&lt;-</span> <span class="fu">glm</span>(</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  Species <span class="sc">~</span> number_rays <span class="sc">+</span> stem_length,</span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">data =</span> encelia_train, </span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">family =</span> <span class="st">"binomial"</span></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>encelia_glm6 <span class="sc">|&gt;</span></span>
-<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tidy</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 3 × 5
-  term        estimate std.error statistic  p.value
-  &lt;chr&gt;          &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;    &lt;dbl&gt;
-1 (Intercept)   15.0       5.14       2.92 0.00346 
-2 number_rays   -0.716     0.318     -2.25 0.0242  
-3 stem_length   -0.389     0.116     -3.36 0.000773</code></pre>
-</div>
-</div>
-<p><strong>Propose several logistic regression models and use cross-validation to select a best model, following the steps in the “Cross-Validation (Part 3)” video and the “Model Selection for Logistic Regression” activity.</strong></p>
-<p>Based on the data collection, the factors I chose to put in my models seem to display the most differences between species. When creating the models, I wanted it to be able to predict as well as it could. I started with all of the predictors, then did different model with all of them but one.</p>
-<ul>
-<li><strong>Which model are you selecting as the best model? Why?</strong></li>
-</ul>
-<p><strong>Fit the selected “best” model on the training set and make predictions on the test set. Overall, how accurately is your model making predictions?</strong></p>
 </section>
 <section id="insights" class="level2">
 <h2 class="anchored" data-anchor-id="insights"><strong>Insights</strong></h2>
-<p><strong>Think about how you might visualize the model’s predictions and the accuracy of those predictions. Then, create and describe one or more visualizations in line with your ideas.</strong></p>
-<p><strong>Which flowers (if any) were incorrectly predicted? Why do you suspect that they were incorrectly predicted?</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>encelia_prediction <span class="sc">|&gt;</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">conf_mat</span>(</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">truth =</span> Species, </span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">estimate =</span> .pred_species</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          Truth
+Prediction C F
+         C 5 0
+         F 3 9</code></pre>
+</div>
+</div>
+<p>The confusion matrix above tells me if my model is predicting correctly. The ones that are in the place of having double of the letter (top left and bottom right) mean a correct prediction, while if they are in conflicting letter places (top right and bottom left), it is an incorrect prediction. My model is making pretty accurate predictions for the <em>Encelia farinosa</em> plant, but not as accurate predictions for the <em>Encelia californica</em> plant. The model got 14 out of 17 predictions correct.</p>
+<p>There were three flowers that were incorrectly predicted. I think they might be incorrectly predicted because they had measurements that were abnormally like the <em>Encelia farinosa</em> plant rather than the rest of the <em>Encelia californica.</em> There was a lot of overlap in some of the measurements where it could have been a toss-up to which plant it was if they had not already been identified.</p>
 
 
 </section>

@@ -65,6 +65,13 @@ I'm going to read in the data and display it below.
 ```{r}
 library(readr)
 encelia <- read_csv("Data/Encelia Classification Data Collection - Sheet1.csv")
+encelia <- encelia|>
+  mutate(
+    Species = Species |>
+      as.factor()
+  )
+
+contrasts(encelia$Species)
 ```
 
 The data consists of numeric values which are the measurements of each variable in centimeters or whole numbers for the ray count, so we do not need to change anything.
@@ -80,15 +87,22 @@ encelia_split <- initial_split(
 
 encelia_train <- training(encelia_split)
 encelia_test <- testing(encelia_split)
+
+encelia_train$Species <- as.factor(encelia_train$Species)
+
+#This creates the folds for later.
+encelia_cv <- encelia_train |>
+  vfold_cv(
+    v=4, #4 fold cross-validation
+    repeats = 1 #gives one unique prediction per observation in the training set
+  )
 ```
 
-A training set trains the model to be able to predict the outcome, and the test set will be put into the model to see how well it actually does predict. It will be useful for this objective because we want to build a model that can predict what species a flower is given the measurements.
+A training set trains the model to be able to predict the outcome, and the test set will be put into the model to see how well it actually does predict. It will be useful for this objective because we want to build a model that can predict what species a flower is given the measurements. Additionally, I created the folds in the set that we can use to get the predictions.
 
 ## Exploratory Data Analysis
 
-**Expand on the EDA you did in the Logistic Regression with Encelia activity. Explain what is going on in your graphs and summaries and how those insights relate to the models you will be building in the next section.**
-
-During the Logistic Regression with Encelia activity, we created plots that compared each of the variables to the species that it was. We knew that there were some differences to the flowers, and we were able to pinpoint the main identifiers that were different.
+During the Logistic Regression with Encelia activity, we created plots that compared each of the variables to the species that it was. We knew that there were some differences to the flowers, and we were able to pinpoint the main identifiers that were different by comparing the two species. The graphs will help to identify which variables we should consider choosing for our model.
 
 ```{r}
 #disk diameter vs. species
@@ -143,98 +157,123 @@ Logistic regression is a machine model that attempts to distinguish between cate
 Cross-validation is important to see how well the model works to predict what we want. It involves separating the data into training and testing sets. The training set trains the model using that data, and the testing set tests if the model really works how it should.
 
 ```{r}
-#| label: build model with all predictors
-#| 
-encelia_train$Species <- as.factor(encelia_train$Species)
+#| label: build models 
+encelia_prediction <- function(split) {
 
-encelia_glm1 <- glm(
-  Species ~ number_rays + disk_diameter + ray_diameter + stem_length,
-  data = encelia_train, 
-  family = "binomial"
-)
-encelia_glm1 |>
-  tidy()
+#Step 1: create the training and validation sets 
+train <- analysis(split)
+valid <- assessment(split)
+
+#Step 2: Fit all the models on the training set
+encelia_glm1 <- glm(Species ~ number_rays + disk_diameter + ray_diameter + stem_length, data = train, family = "binomial")
+encelia_glm2 <- glm(Species ~ number_rays + ray_diameter + stem_length, data = train, family = "binomial")
+encelia_glm3 <- glm(Species ~ disk_diameter + ray_diameter + stem_length, data = train, family = "binomial")
+encelia_glm4 <- glm(Species ~ number_rays + disk_diameter + stem_length, data = train, family = "binomial")
+encelia_glm5 <- glm(Species ~ number_rays + disk_diameter + ray_diameter, data = train, family = "binomial")
+encelia_glm6 <- glm(Species ~ number_rays + stem_length, data = train, family = "binomial")
+encelia_null <- glm(Species ~1, data = train, family = "binomial")
+
+#Step 3: Make all the predictions on the validation set
+valid_predictions <- valid |>
+  mutate(
+    pred_all = predict(encelia_glm1, newdata = valid, type = "response"), 
+    pred_no_disk = predict(encelia_glm2, newdata = valid, type = "response"), 
+    pred_no_rays = predict(encelia_glm3, newdata = valid, type = "response"),
+    pred_no_diameter = predict(encelia_glm4, newdata = valid, type = "response"),
+    pred_no_stem = predict(encelia_glm5, newdata = valid, type = "response"),
+    pred_2 = predict(encelia_glm6, newdata = valid, type = "response"),
+    pred_null = predict(encelia_null, newdata = valid, type = "response")
+  )
+return(valid_predictions)
+}
 ```
 
 ```{r}
-#| label: build model without disk diameter
-encelia_train$Species <- as.factor(encelia_train$Species)
-
-encelia_glm2 <- glm(
-  Species ~ number_rays + ray_diameter + stem_length,
-  data = encelia_train, 
-  family = "binomial"
+#This runs the function on the splits.
+mapped_pred <- map(
+  encelia_cv$splits, 
+  encelia_prediction
 )
-encelia_glm2 |>
-  tidy()
+
+mapped_pred_df <- mapped_pred |>
+  bind_rows(
+    .id = "fold"
+  )
+
+mapped_pred_df |>
+  select(
+    fold, Species, pred_all, pred_no_disk, pred_no_rays, pred_no_diameter, pred_no_stem, pred_2, pred_null
+  )
 ```
 
 ```{r}
-#| label: build model without number of rays
+#Predictions in long form that we will eventually shorten
+predictions <- mapped_pred_df |>
+  pivot_longer(
+    cols = starts_with ("pred"),
+    names_to = "model",
+    values_to = ".pred_F"
+  ) |>
+  mutate(
+    .pred_C = 1 - .pred_F
+  )
 
-encelia_train$Species <- as.factor(encelia_train$Species)
+predictions |>
+  select(
+    model, fold, Species, .pred_C, .pred_F
+  )
+```
 
-encelia_glm3 <- glm(
-  Species ~ disk_diameter + ray_diameter + stem_length,
-  data = encelia_train, 
-  family = "binomial"
-)
-encelia_glm3 |>
-  tidy()
+The code below will give us the average Brier score which we can use measure the accuracy of our predictions.
+
+```{r}
+brier_all_models <- predictions |>
+  group_by(model, fold) |>
+  brier_class(
+    truth = Species,
+    .pred_C
+  )
+
+brier_all_models |>
+  ungroup() |>
+  group_by(model) |>
+  summarize(
+    mean_brier = mean(.estimate),
+    se_brier = sd(.estimate)/sqrt(4) #4 estimates
+  ) |>
+  arrange(mean_brier)
+```
+
+Based on the data collection, the factors I chose to put in my models seem to display the most differences between species. When creating the models, I wanted it to be able to predict as well as it could. I started with all of the predictors, then did different model with all of them but one. In this case, we want the model that has the lowest mean brier score, which was using all of the factors. Now, what we do is we fit the final model and test using that model.
+
+```{r}
+encelia_final_glm <- glm(Species ~ number_rays + disk_diameter + ray_diameter + stem_length, data = encelia_train, family = "binomial")
 ```
 
 ```{r}
-#| label: build model without ray diameter
+encelia_prediction <- encelia_final_glm |>
+  augment(newdata = encelia_test, type.predict = "response") |>
+  mutate(
+    .pred_F = .fitted,
+    .pred_C = 1 - .pred_F,
+    .pred_species = if_else(.fitted >= 0.5, "F", "C")|>
+      as.factor()
+  )
 
-encelia_train$Species <- as.factor(encelia_train$Species)
-
-encelia_glm4 <- glm(
-  Species ~ number_rays + disk_diameter + stem_length,
-  data = encelia_train, 
-  family = "binomial"
-)
-encelia_glm4 |>
-  tidy()
+encelia_prediction |>
+  select(Species, .pred_species, .pred_C, .pred_F)
 ```
-
-```{r}
-#| label: build model without stem length
-
-encelia_train$Species <- as.factor(encelia_train$Species)
-
-encelia_glm5 <- glm(
-  Species ~ number_rays + disk_diameter + ray_diameter,
-  data = encelia_train, 
-  family = "binomial"
-)
-encelia_glm5 |>
-  tidy()
-```
-
-```{r}
-#| label: build model with ray count and stem length
-
-encelia_train$Species <- as.factor(encelia_train$Species)
-
-encelia_glm6 <- glm(
-  Species ~ number_rays + stem_length,
-  data = encelia_train, 
-  family = "binomial"
-)
-encelia_glm6 |>
-  tidy()
-```
-
-**Propose several logistic regression models and use cross-validation to select a best model, following the steps in the "Cross-Validation (Part 3)" video and the "Model Selection for Logistic Regression" activity.**
-
-Based on the data collection, the factors I chose to put in my models seem to display the most differences between species. When creating the models, I wanted it to be able to predict as well as it could. I started with all of the predictors, then did different model with all of them but one.
-
--   **Which model are you selecting as the best model? Why?**
-
-**Fit the selected "best" model on the training set and make predictions on the test set. Overall, how accurately is your model making predictions?**
 
 ## **Insights**
 
-**Think about how you might visualize the model's predictions and the accuracy of those predictions. Then, create and describe one or more visualizations in line with your ideas.**
+```{r}
+encelia_prediction |>
+  conf_mat(
+    truth = Species, 
+    estimate = .pred_species
+  )
+```
 
-**Which flowers (if any) were incorrectly predicted? Why do you suspect that they were incorrectly predicted?**
+The confusion matrix above tells me if my model is predicting correctly. The ones that are in the place of having double of the letter (top left and bottom right) mean a correct prediction, while if they are in conflicting letter places (top right and bottom left), it is an incorrect prediction. My model is making pretty accurate predictions for the *Encelia farinosa* plant, but not as accurate predictions for the *Encelia californica* plant. The model got 14 out of 17 predictions correct.
+
+There were three flowers that were incorrectly predicted. I think they might be incorrectly predicted because they had measurements that were abnormally like the *Encelia farinosa* plant rather than the rest of the *Encelia californica.* There was a lot of overlap in some of the measurements where it could have been a toss-up to which plant it was if they had not already been identified.
