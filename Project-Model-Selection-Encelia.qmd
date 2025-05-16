@@ -40,7 +40,7 @@ library(broom)
 ```
 
 | Package | Use |
-|----|----|
+|------------------------------------|------------------------------------|
 | [here](https://github.com/jennybc/here_here) | to easily load and save data |
 | [readr](https://readr.tidyverse.org/) | to import the CSV file data |
 | [dplyr](https://dplyr.tidyverse.org/) | to massage and summarize data |
@@ -277,3 +277,5 @@ encelia_prediction |>
 The confusion matrix above tells me if my model is predicting correctly. The ones that are in the place of having double of the letter (top left and bottom right) mean a correct prediction, while if they are in conflicting letter places (top right and bottom left), it is an incorrect prediction. My model is making pretty accurate predictions for the *Encelia farinosa* plant, but not as accurate predictions for the *Encelia californica* plant. The model got 14 out of 17 predictions correct.
 
 There were three flowers that were incorrectly predicted. I think they might be incorrectly predicted because they had measurements that were abnormally like the *Encelia farinosa* plant rather than the rest of the *Encelia californica.* There was a lot of overlap in some of the measurements where it could have been a toss-up to which plant it was if they had not already been identified.
+
+Overall, the model was pretty accurate and could be used to distinguish which *Encelia* species a plant is based on the flower's disk diameter, ray diameter, ray count, and stem length.
