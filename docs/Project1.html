@@ -155,13 +155,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#motivation-and-context" id="toc-motivation-and-context" class="nav-link active" data-scroll-target="#motivation-and-context">Motivation and Context</a></li>
+  <li><a href="#design-and-data-collection" id="toc-design-and-data-collection" class="nav-link" data-scroll-target="#design-and-data-collection">Design and Data Collection</a></li>
   <li><a href="#main-objective" id="toc-main-objective" class="nav-link" data-scroll-target="#main-objective">Main Objective</a>
   <ul class="collapse">
   <li><a href="#my-process" id="toc-my-process" class="nav-link" data-scroll-target="#my-process">My Process</a></li>
   </ul></li>
-  <li><a href="#design-and-data-collection" id="toc-design-and-data-collection" class="nav-link" data-scroll-target="#design-and-data-collection">Design and Data Collection</a></li>
-  <li><a href="#insights" id="toc-insights" class="nav-link" data-scroll-target="#insights">Insights</a></li>
-  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations:</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
+  <li><a href="#limitations" id="toc-limitations" class="nav-link" data-scroll-target="#limitations">Limitations</a></li>
   </ul>
 </nav>
     </div>
@@ -189,13 +189,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="motivation-and-context" class="level1">
 <h1>Motivation and Context</h1>
-<p><strong>While the objectives were described, they were not connected back to the domain context, and there was no explanation of what any of the variables of interest meant.</strong></p>
 <p>For this project, I looked into the hospital dataset that we worked with throughout the semester. When we observed this data, the biggest questions I had in my head were these: how did we get to the final numbers of recommendation or overall score? Did certain aspects have more effects on the scores over others?</p>
-<p><strong>This dataset comes from</strong></p>
+</section>
+<section id="design-and-data-collection" class="level1">
+<h1>Design and Data Collection</h1>
+<p>This dataset is a list of hospital rating for the Hospital Consumer Assessment of Healthcare Providers and Systems (HCAHPS), which is a survey for patients about their most recent hospital stay. The questions asked about many variables including: cleanliness, nurse communication, doctor communication, staff responsiveness, communication about medicine, discharge information, care transition, and quietness. These variables are the explanatory variable for our model. An overall score and a recommendation score was also collected, which will be our response variable for the model. These scores were collected in three different measurements: star ratings, linear mean scores, and with descriptions. The only scoring system that was a little difficult to understand was the star ratings. According to the data dictionary, “The Overall Star Ratings are designed to assist patients, consumers, and others in comparing hospitals side-by-side… The hospitals can receive between one and five stars, with five stars being the highest rating, and the more stars, the better the hospital performs on the quality measures.”</p>
+<p>This data was collected through a random sample of eligible discharges from a hospital. The eligibility includes:</p>
+<ul>
+<li><p>at least 18 years of age at time of admission,</p></li>
+<li><p>at least one overnight stay, and</p></li>
+<li><p>non-psychiatric MS-DRG/principal diagnosis at discharge.</p></li>
+</ul>
+<p>These patients were sampled randomly through telephone, IVR modes, and mail.</p>
+</section>
+<section id="main-objective" class="level1">
+<h1>Main Objective</h1>
+<p>My goal for this project is to see what factors are the heaviest influences on the overall and recommended scores that are reported using a linear regression model. I want to see which of the explanatory variables has the most impact.</p>
+<p>While linear regression models are not always the best model that can be used to predict what factor has the highest influence on an outcome, I had been learning about them in Math 435 and wanted to combine that knowledge with coding to see what the outcome would be. A logistic regression model would have made much more sense for predicting as that is what they are mainly used for.</p>
+<section id="my-process" class="level3">
+<h3 class="anchored" data-anchor-id="my-process">My Process</h3>
+<p>The code below reads in the data as well as any packages that are necessary for the data cleaning I did.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="do">##This reads in the data as well as any packages that are necessary. </span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readr)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
 ✔ dplyr     1.1.4     ✔ purrr     1.0.2
@@ -233,139 +249,147 @@ dbl  (6): Patient Survey Star Rating, Patient Survey Star Rating Footnote, H...
 ℹ Use `spec()` to retrieve the full column specification for this data.
 ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#We removed any of the data that said "Not Applicable" or "Not Available" and replaced it with a N/A that would help for further data analysis. </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p><strong>Although I would have liked the comments to have been moved outside the code chunks and into text, you explained both what steps were taken and why you were taking those steps.</strong></p>
+<p>We removed any of the data that said “Not Applicable” or “Not Available” and replaced it with a N/A that would help for further data analysis.</p>
+<p>Below is the code that I used to only keep the pieces of data that I thought would be relevant to my project.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="do">##This is to only keeping what I find relevant in my dataset</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>hospital <span class="ot">&lt;-</span> hospital <span class="sc">|&gt;</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Facility ID</span><span class="st">`</span>,</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Facility Name</span><span class="st">`</span>, </span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">HCAHPS Answer Description</span><span class="st">`</span>, </span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Patient Survey Star Rating</span><span class="st">`</span>, </span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>     <span class="st">`</span><span class="at">HCAHPS Linear Mean Value</span><span class="st">`</span>,</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">HCAHPS Answer Percent</span><span class="st">`</span>,</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Survey Response Rate Percent</span><span class="st">`</span>,</span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Number of Completed Surveys</span><span class="st">`</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>hospital <span class="ot">&lt;-</span> hospital <span class="sc">|&gt;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Facility ID</span><span class="st">`</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Facility Name</span><span class="st">`</span>, </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">HCAHPS Answer Description</span><span class="st">`</span>, </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Patient Survey Star Rating</span><span class="st">`</span>, </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>     <span class="st">`</span><span class="at">HCAHPS Linear Mean Value</span><span class="st">`</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">HCAHPS Answer Percent</span><span class="st">`</span>,</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Survey Response Rate Percent</span><span class="st">`</span>,</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">`</span><span class="at">Number of Completed Surveys</span><span class="st">`</span></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>This renames the long descriptions and makes them shorter for easier coding in the future.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="do">##clean the data &amp; rename things</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>hospital_clean <span class="ot">&lt;-</span> hospital <span class="sc">|&gt;</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">answer =</span> <span class="st">`</span><span class="at">HCAHPS Answer Description</span><span class="st">`</span>,</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">star_rating =</span> <span class="st">`</span><span class="at">Patient Survey Star Rating</span><span class="st">`</span>,</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_value =</span> <span class="st">`</span><span class="at">HCAHPS Linear Mean Value</span><span class="st">`</span>,</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">answer_percent =</span> <span class="st">`</span><span class="at">HCAHPS Answer Percent</span><span class="st">`</span>,</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">fac_id =</span> <span class="st">`</span><span class="at">Facility ID</span><span class="st">`</span>,</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">fac_name =</span> <span class="st">`</span><span class="at">Facility Name</span><span class="st">`</span>, </span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">response_rate =</span> <span class="st">`</span><span class="at">Survey Response Rate Percent</span><span class="st">`</span>,</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">surveys =</span> <span class="st">`</span><span class="at">Number of Completed Surveys</span><span class="st">`</span></span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>hospital_clean <span class="ot">&lt;-</span> hospital <span class="sc">|&gt;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">answer =</span> <span class="st">`</span><span class="at">HCAHPS Answer Description</span><span class="st">`</span>,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">star_rating =</span> <span class="st">`</span><span class="at">Patient Survey Star Rating</span><span class="st">`</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean_value =</span> <span class="st">`</span><span class="at">HCAHPS Linear Mean Value</span><span class="st">`</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">answer_percent =</span> <span class="st">`</span><span class="at">HCAHPS Answer Percent</span><span class="st">`</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">fac_id =</span> <span class="st">`</span><span class="at">Facility ID</span><span class="st">`</span>,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">fac_name =</span> <span class="st">`</span><span class="at">Facility Name</span><span class="st">`</span>, </span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">response_rate =</span> <span class="st">`</span><span class="at">Survey Response Rate Percent</span><span class="st">`</span>,</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">surveys =</span> <span class="st">`</span><span class="at">Number of Completed Surveys</span><span class="st">`</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-</section>
-<section id="main-objective" class="level1">
-<h1>Main Objective</h1>
-<p>My goal for this project is to see what factors are the heaviest influences on the overall and recommended scores that are reported.</p>
-<section id="my-process" class="level3">
-<h3 class="anchored" data-anchor-id="my-process">My Process</h3>
 <p>I want to group by rating system: star rating, linear mean value, and answer percent.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#This groups the data by the rating systems: star, linear mean value, and answer percent. </span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>hospital.star <span class="ot">&lt;-</span> hospital_clean <span class="sc">|&gt;</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    fac_id,</span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>    fac_name, </span>
-<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    answer, </span>
-<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    star_rating, </span>
-<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    response_rate,</span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    surveys</span>
-<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>  )<span class="sc">|&gt;</span></span>
-<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>( </span>
-<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(star_rating)</span>
-<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>hospital.lmv <span class="ot">&lt;-</span> hospital_clean <span class="sc">|&gt;</span></span>
-<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
-<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>    fac_id,</span>
-<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>    fac_name, </span>
-<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>    answer, </span>
-<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>    mean_value, </span>
-<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a>    response_rate, </span>
-<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>    surveys</span>
-<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>  )<span class="sc">|&gt;</span></span>
-<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>( </span>
-<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(mean_value)</span>
-<span id="cb11-26"><a href="#cb11-26" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb11-27"><a href="#cb11-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb11-28"><a href="#cb11-28" aria-hidden="true" tabindex="-1"></a>hospital.answer <span class="ot">&lt;-</span> hospital_clean <span class="sc">|&gt;</span></span>
-<span id="cb11-29"><a href="#cb11-29" aria-hidden="true" tabindex="-1"></a>   <span class="fu">select</span>(</span>
-<span id="cb11-30"><a href="#cb11-30" aria-hidden="true" tabindex="-1"></a>    fac_id,</span>
-<span id="cb11-31"><a href="#cb11-31" aria-hidden="true" tabindex="-1"></a>    fac_name, </span>
-<span id="cb11-32"><a href="#cb11-32" aria-hidden="true" tabindex="-1"></a>    answer, </span>
-<span id="cb11-33"><a href="#cb11-33" aria-hidden="true" tabindex="-1"></a>    answer_percent, </span>
-<span id="cb11-34"><a href="#cb11-34" aria-hidden="true" tabindex="-1"></a>    response_rate,</span>
-<span id="cb11-35"><a href="#cb11-35" aria-hidden="true" tabindex="-1"></a>    surveys</span>
-<span id="cb11-36"><a href="#cb11-36" aria-hidden="true" tabindex="-1"></a>  )<span class="sc">|&gt;</span></span>
-<span id="cb11-37"><a href="#cb11-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>( </span>
-<span id="cb11-38"><a href="#cb11-38" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(answer_percent))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>hospital.star <span class="ot">&lt;-</span> hospital_clean <span class="sc">|&gt;</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    fac_id,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    fac_name, </span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    answer, </span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    star_rating, </span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    response_rate,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    surveys</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  )<span class="sc">|&gt;</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>( </span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(star_rating)</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>hospital.lmv <span class="ot">&lt;-</span> hospital_clean <span class="sc">|&gt;</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>    fac_id,</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>    fac_name, </span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>    answer, </span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>    mean_value, </span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>    response_rate, </span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>    surveys</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>  )<span class="sc">|&gt;</span></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>( </span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(mean_value)</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>hospital.answer <span class="ot">&lt;-</span> hospital_clean <span class="sc">|&gt;</span></span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>   <span class="fu">select</span>(</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>    fac_id,</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>    fac_name, </span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>    answer, </span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a>    answer_percent, </span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>    response_rate,</span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>    surveys</span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>  )<span class="sc">|&gt;</span></span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>( </span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>    <span class="sc">!</span><span class="fu">is.na</span>(answer_percent))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>This is trying to pivot wider so that we can visualize the data in a different way that is easier to read in columns rather than multiple rows.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="do">##label: This is trying to pivot wider so that we can visualize the data in a different way. </span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>hospital.lmv <span class="ot">&lt;-</span> <span class="fu">pivot_wider</span>(hospital.lmv, <span class="at">names_from =</span> answer, <span class="at">values_from =</span> mean_value)</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>hospital.answer <span class="ot">&lt;-</span> <span class="fu">pivot_wider</span>(hospital.answer, <span class="at">names_from =</span> answer, <span class="at">values_from =</span> answer_percent)</span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>hospital.star <span class="ot">&lt;-</span> <span class="fu">pivot_wider</span>(hospital.star, <span class="at">names_from =</span> answer, <span class="at">values_from =</span> star_rating)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>hospital.lmv <span class="ot">&lt;-</span> <span class="fu">pivot_wider</span>(hospital.lmv, <span class="at">names_from =</span> answer, <span class="at">values_from =</span> mean_value)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>hospital.answer <span class="ot">&lt;-</span> <span class="fu">pivot_wider</span>(hospital.answer, <span class="at">names_from =</span> answer, <span class="at">values_from =</span> answer_percent)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>hospital.star <span class="ot">&lt;-</span> <span class="fu">pivot_wider</span>(hospital.star, <span class="at">names_from =</span> answer, <span class="at">values_from =</span> star_rating)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>In looking at the data, the more specific data set would be the linear mean score, hence, I will be continuing to observe with just that data set.</p>
-<p>The code below renames the variables to shorten them for further coding ease.</p>
+<p>The code below renames the pivoted variables to shorten them for further coding ease.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>hospital.lmv <span class="ot">&lt;-</span> hospital.lmv <span class="sc">|&gt;</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">nurse_com =</span> <span class="st">`</span><span class="at">Nurse communication - linear mean score</span><span class="st">`</span>,</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">doc_com =</span> <span class="st">`</span><span class="at">Doctor communication - linear mean score</span><span class="st">`</span>,</span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">staff_response =</span> <span class="st">`</span><span class="at">Staff responsiveness - linear mean score</span><span class="st">`</span>,</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">med_coms =</span> <span class="st">`</span><span class="at">Communication about medicines - linear mean score</span><span class="st">`</span>, </span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">discharge_info =</span> <span class="st">`</span><span class="at">Discharge information - linear mean score</span><span class="st">`</span>,</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">care_transition =</span> <span class="st">`</span><span class="at">Care transition - linear mean score</span><span class="st">`</span>,</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">clean =</span> <span class="st">`</span><span class="at">Cleanliness - linear mean score</span><span class="st">`</span>,</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">quiet =</span> <span class="st">`</span><span class="at">Quietness - linear mean score</span><span class="st">`</span>,</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">overall =</span> <span class="st">`</span><span class="at">Overall hospital rating - linear mean score</span><span class="st">`</span>,</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">rec =</span> <span class="st">`</span><span class="at">Recommend hospital - linear mean score</span><span class="st">`</span></span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>hospital.star <span class="ot">&lt;-</span> hospital.star <span class="sc">|&gt;</span></span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>      <span class="at">nurse_com =</span> <span class="st">`</span><span class="at">Nurse communication - star rating</span><span class="st">`</span>,</span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">doc_com =</span> <span class="st">`</span><span class="at">Doctor communication - star rating</span><span class="st">`</span>,</span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">staff_response =</span> <span class="st">`</span><span class="at">Staff responsiveness - star rating</span><span class="st">`</span>,</span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">med_coms =</span> <span class="st">`</span><span class="at">Communication about medicines - star rating</span><span class="st">`</span>, </span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">discharge_info =</span> <span class="st">`</span><span class="at">Discharge information - star rating</span><span class="st">`</span>,</span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">care_transition =</span> <span class="st">`</span><span class="at">Care transition - star rating</span><span class="st">`</span>,</span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">clean =</span> <span class="st">`</span><span class="at">Cleanliness - star rating</span><span class="st">`</span>,</span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>      <span class="at">quiet =</span> <span class="st">`</span><span class="at">Quietness - star rating</span><span class="st">`</span>,</span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>      <span class="at">overall =</span> <span class="st">`</span><span class="at">Overall hospital rating - star rating</span><span class="st">`</span>,</span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>      <span class="at">rec =</span> <span class="st">`</span><span class="at">Recommend hospital - star rating</span><span class="st">`</span></span>
-<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>hospital.lmv <span class="ot">&lt;-</span> hospital.lmv <span class="sc">|&gt;</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>      <span class="at">nurse_com =</span> <span class="st">`</span><span class="at">Nurse communication - linear mean score</span><span class="st">`</span>,</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">doc_com =</span> <span class="st">`</span><span class="at">Doctor communication - linear mean score</span><span class="st">`</span>,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">staff_response =</span> <span class="st">`</span><span class="at">Staff responsiveness - linear mean score</span><span class="st">`</span>,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">med_coms =</span> <span class="st">`</span><span class="at">Communication about medicines - linear mean score</span><span class="st">`</span>, </span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>      <span class="at">discharge_info =</span> <span class="st">`</span><span class="at">Discharge information - linear mean score</span><span class="st">`</span>,</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">care_transition =</span> <span class="st">`</span><span class="at">Care transition - linear mean score</span><span class="st">`</span>,</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">clean =</span> <span class="st">`</span><span class="at">Cleanliness - linear mean score</span><span class="st">`</span>,</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">quiet =</span> <span class="st">`</span><span class="at">Quietness - linear mean score</span><span class="st">`</span>,</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">overall =</span> <span class="st">`</span><span class="at">Overall hospital rating - linear mean score</span><span class="st">`</span>,</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>      <span class="at">rec =</span> <span class="st">`</span><span class="at">Recommend hospital - linear mean score</span><span class="st">`</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>hospital.star <span class="ot">&lt;-</span> hospital.star <span class="sc">|&gt;</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>      <span class="at">nurse_com =</span> <span class="st">`</span><span class="at">Nurse communication - star rating</span><span class="st">`</span>,</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">doc_com =</span> <span class="st">`</span><span class="at">Doctor communication - star rating</span><span class="st">`</span>,</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">staff_response =</span> <span class="st">`</span><span class="at">Staff responsiveness - star rating</span><span class="st">`</span>,</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">med_coms =</span> <span class="st">`</span><span class="at">Communication about medicines - star rating</span><span class="st">`</span>, </span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">discharge_info =</span> <span class="st">`</span><span class="at">Discharge information - star rating</span><span class="st">`</span>,</span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">care_transition =</span> <span class="st">`</span><span class="at">Care transition - star rating</span><span class="st">`</span>,</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">clean =</span> <span class="st">`</span><span class="at">Cleanliness - star rating</span><span class="st">`</span>,</span>
+<span id="cb12-24"><a href="#cb12-24" aria-hidden="true" tabindex="-1"></a>      <span class="at">quiet =</span> <span class="st">`</span><span class="at">Quietness - star rating</span><span class="st">`</span>,</span>
+<span id="cb12-25"><a href="#cb12-25" aria-hidden="true" tabindex="-1"></a>      <span class="at">overall =</span> <span class="st">`</span><span class="at">Overall hospital rating - star rating</span><span class="st">`</span>,</span>
+<span id="cb12-26"><a href="#cb12-26" aria-hidden="true" tabindex="-1"></a>      <span class="at">rec =</span> <span class="st">`</span><span class="at">Recommend hospital - star rating</span><span class="st">`</span></span>
+<span id="cb12-27"><a href="#cb12-27" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>This gets the average of the scores that could affect the overall or recommended score and creates a new column for that data point for each hospital.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>hospital.lmv <span class="ot">&lt;-</span> hospital.lmv <span class="sc">|&gt;</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>( </span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">average_score =</span> <span class="fu">rowMeans</span>(<span class="fu">subset</span>(hospital.lmv, <span class="at">select =</span> <span class="fu">c</span>(nurse_com, doc_com, staff_response, med_coms, discharge_info, care_transition, clean, quiet)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>hospital.lmv <span class="ot">&lt;-</span> hospital.lmv <span class="sc">|&gt;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>( </span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">average_score =</span> <span class="fu">rowMeans</span>(<span class="fu">subset</span>(hospital.lmv, <span class="at">select =</span> <span class="fu">c</span>(nurse_com, doc_com, staff_response, med_coms, discharge_info, care_transition, clean, quiet)), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The code below finds the differences in the overall and recommendation scores versus the calculated average score.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>hospital.lmv <span class="ot">&lt;-</span> hospital.lmv <span class="sc">|&gt;</span></span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">o.a =</span> overall <span class="sc">-</span> average_score, </span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">r.a =</span> rec <span class="sc">-</span> average_score</span>
-<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>hospital.lmv <span class="ot">&lt;-</span> hospital.lmv <span class="sc">|&gt;</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">o.a =</span> overall <span class="sc">-</span> average_score, </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">r.a =</span> rec <span class="sc">-</span> average_score</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(hospital.lmv)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 17
+  fac_id fac_name         response_rate surveys nurse_com doc_com staff_response
+  &lt;chr&gt;  &lt;chr&gt;                    &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;          &lt;dbl&gt;
+1 010001 SOUTHEAST HEALT…            18     684        89      91             80
+2 010005 MARSHALL MEDICA…            16     667        90      92             77
+3 010006 NORTH ALABAMA M…            18    1642        89      89             76
+4 010007 MIZELL MEMORIAL…            23     159        94      95             89
+5 010011 ST. VINCENT'S E…            23    1026        90      90             83
+6 010012 DEKALB REGIONAL…            16     302        93      93             85
+# ℹ 10 more variables: med_coms &lt;dbl&gt;, discharge_info &lt;dbl&gt;,
+#   care_transition &lt;dbl&gt;, clean &lt;dbl&gt;, quiet &lt;dbl&gt;, overall &lt;dbl&gt;, rec &lt;dbl&gt;,
+#   average_score &lt;dbl&gt;, o.a &lt;dbl&gt;, r.a &lt;dbl&gt;</code></pre>
 </div>
-<p>The section above does not do too much for the initial goal of the project, but it is an interesting thing to see how they compare.</p>
+</div>
+<p>The section above does not do too much for the initial goal of the project, but it is an interesting thing to see how the overall and recommended scores compare to the average that was calculated from the variables.</p>
+<p>One thing I noticed was that the average was mostly lower than the overall score. Only 101 out of the 3197 entries had an average that was higher than the overall score. 19 entries had no difference in their average and overall score.</p>
 <p>Now, what I want to find is which of the variables has the most impact on the recommended and overall scores, and I will do this through a multiple linear regression model.</p>
-<p>This is my linear regression model for the given overall score.</p>
+<p>This is my linear regression model for the given overall score using all of the factors.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>overall.lm <span class="ot">&lt;-</span> <span class="fu">lm</span>(overall <span class="sc">~</span> nurse_com <span class="sc">+</span> doc_com <span class="sc">+</span>  staff_response <span class="sc">+</span> med_coms <span class="sc">+</span> discharge_info <span class="sc">+</span> care_transition <span class="sc">+</span> clean <span class="sc">+</span> quiet, <span class="at">data =</span> hospital.lmv)</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -429,7 +453,7 @@ F-statistic:  2440 on 8 and 3188 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 </div>
-<p>Below is my linear regression model for the given reccommended score.</p>
+<p>Below is my linear regression model for the given reccommended score using all of the variables.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>rec.lm <span class="ot">&lt;-</span> <span class="fu">lm</span>(rec <span class="sc">~</span> nurse_com <span class="sc">+</span> doc_com <span class="sc">+</span> staff_response <span class="sc">+</span> med_coms <span class="sc">+</span> discharge_info <span class="sc">+</span> care_transition <span class="sc">+</span> clean <span class="sc">+</span> quiet, <span class="at">data =</span> hospital.lmv)</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -501,19 +525,210 @@ F-statistic:  1423 on 8 and 3188 DF,  p-value: &lt; 2.2e-16</code></pre>
 <li><p>overall = -17.42 + 0.38(nurse_com) + 0.13(doc_com) + 0.03(staff_response) - 0.04(med_coms) + 0.04 (discharge_info) + 0.51(care_transition) + 0.10(clean) + 0.07(quiet)</p></li>
 <li><p>rec = -49.96 + 0.51(nurse_com) + 0.16(doc_com) - 0.05 (staff_response) - 0.12(med_coms) + 0.03 (discharge_info) + 0.96(care_transition) + 0.08(clean) + 0.03(quiet)</p></li>
 </ul>
-<p>I was curious about what variable impacts the scores the most. With these equations, there is a heavy influence from the care transition for both models.</p>
+<p>I want to now take a few data points and test them on the models. I randomly selected 10 hospitals to use as my testers.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>hospital_testers <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="fu">nrow</span>(hospital.lmv), <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>These numbers will be different each time the code is run, but when I sampled mine, the rows chosen were as follows:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>hospital_testers <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">296</span>, <span class="dv">190</span>, <span class="dv">1857</span>, <span class="dv">1686</span>, <span class="dv">194</span>, <span class="dv">1172</span>, <span class="dv">2281</span>, <span class="dv">1745</span>, <span class="dv">97</span>, <span class="dv">1226</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>hospital_test <span class="ot">&lt;-</span> hospital.lmv[hospital_testers,]</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>hospital_test</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 17
+   fac_id fac_name        response_rate surveys nurse_com doc_com staff_response
+   &lt;chr&gt;  &lt;chr&gt;                   &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt;          &lt;dbl&gt;
+ 1 050278 PROVIDENCE HOL…            15     341        92      90             85
+ 2 050030 OROVILLE HOSPI…            14     495        82      84             68
+ 3 310119 THE UNIVERSITY…             7     699        85      88             71
+ 4 26023F COLUMBIA MO VA…            37     428        94      92             86
+ 5 050040 LAC/OLIVE VIEW…            10     384        89      90             78
+ 6 180004 OWENSBORO HEAL…            31     250        94      93             86
+ 7 370097 SOUTHWESTERN M…            15     278        88      88             83
+ 8 281341 CHADRON COMMUN…            30     100        91      97             89
+ 9 030078 PHOENIX INDIAN…            22     188        93      94             87
+10 180141 UNIVERSITY OF …            16    1653        87      87             78
+# ℹ 10 more variables: med_coms &lt;dbl&gt;, discharge_info &lt;dbl&gt;,
+#   care_transition &lt;dbl&gt;, clean &lt;dbl&gt;, quiet &lt;dbl&gt;, overall &lt;dbl&gt;, rec &lt;dbl&gt;,
+#   average_score &lt;dbl&gt;, o.a &lt;dbl&gt;, r.a &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p>In trying to write a function that I could use to plug in the values, my code didn’t seem to work, so I will be doing this the long way with plugging in the values individually. They will be organized by one word in the facility name as the name of the variable with an o or an r after depending on which prediction it is for.</p>
+<section id="overall-predictions" class="level4">
+<h4 class="anchored" data-anchor-id="overall-predictions">Overall Predictions</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>providence.o <span class="ot">=</span> <span class="sc">-</span><span class="fl">17.42</span> <span class="sc">+</span> <span class="fl">0.38</span><span class="sc">*</span><span class="dv">92</span> <span class="sc">+</span> <span class="fl">0.13</span><span class="sc">*</span><span class="dv">90</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">85</span> <span class="sc">-</span> <span class="fl">0.04</span><span class="sc">*</span><span class="dv">74</span> <span class="sc">+</span> <span class="fl">0.04</span><span class="sc">*</span><span class="dv">87</span> <span class="sc">+</span> <span class="fl">0.51</span><span class="sc">*</span><span class="dv">82</span> <span class="sc">+</span> <span class="fl">0.10</span><span class="sc">*</span><span class="dv">88</span> <span class="sc">+</span> <span class="fl">0.07</span><span class="sc">*</span><span class="dv">75</span> </span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>oroville.o <span class="ot">=</span> <span class="sc">-</span><span class="fl">17.42</span> <span class="sc">+</span> <span class="fl">0.38</span><span class="sc">*</span><span class="dv">82</span> <span class="sc">+</span> <span class="fl">0.13</span><span class="sc">*</span><span class="dv">84</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">68</span> <span class="sc">-</span> <span class="fl">0.04</span><span class="sc">*</span><span class="dv">65</span> <span class="sc">+</span> <span class="fl">0.04</span><span class="sc">*</span><span class="dv">78</span> <span class="sc">+</span> <span class="fl">0.51</span><span class="sc">*</span><span class="dv">71</span> <span class="sc">+</span> <span class="fl">0.10</span><span class="sc">*</span><span class="dv">75</span> <span class="sc">+</span> <span class="fl">0.07</span><span class="sc">*</span><span class="dv">66</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>university.o <span class="ot">=</span> <span class="sc">-</span><span class="fl">17.42</span> <span class="sc">+</span> <span class="fl">0.38</span><span class="sc">*</span><span class="dv">85</span> <span class="sc">+</span> <span class="fl">0.13</span><span class="sc">*</span><span class="dv">88</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">71</span> <span class="sc">-</span> <span class="fl">0.04</span><span class="sc">*</span><span class="dv">67</span> <span class="sc">+</span> <span class="fl">0.04</span><span class="sc">*</span><span class="dv">79</span> <span class="sc">+</span> <span class="fl">0.51</span><span class="sc">*</span><span class="dv">76</span> <span class="sc">+</span> <span class="fl">0.10</span><span class="sc">*</span><span class="dv">77</span> <span class="sc">+</span> <span class="fl">0.07</span><span class="sc">*</span><span class="dv">76</span> </span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>columbia.o <span class="ot">=</span> <span class="sc">-</span><span class="fl">17.42</span> <span class="sc">+</span> <span class="fl">0.38</span><span class="sc">*</span><span class="dv">94</span> <span class="sc">+</span> <span class="fl">0.13</span><span class="sc">*</span><span class="dv">92</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">86</span> <span class="sc">-</span> <span class="fl">0.04</span><span class="sc">*</span><span class="dv">83</span> <span class="sc">+</span> <span class="fl">0.04</span><span class="sc">*</span><span class="dv">88</span> <span class="sc">+</span> <span class="fl">0.51</span><span class="sc">*</span><span class="dv">85</span> <span class="sc">+</span> <span class="fl">0.10</span><span class="sc">*</span><span class="dv">91</span> <span class="sc">+</span> <span class="fl">0.07</span><span class="sc">*</span><span class="dv">87</span> </span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>olive.o <span class="ot">=</span> <span class="sc">-</span><span class="fl">17.42</span> <span class="sc">+</span> <span class="fl">0.38</span><span class="sc">*</span><span class="dv">89</span> <span class="sc">+</span> <span class="fl">0.13</span><span class="sc">*</span><span class="dv">90</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">78</span> <span class="sc">-</span> <span class="fl">0.04</span><span class="sc">*</span><span class="dv">75</span> <span class="sc">+</span> <span class="fl">0.04</span><span class="sc">*</span><span class="dv">87</span> <span class="sc">+</span> <span class="fl">0.51</span><span class="sc">*</span><span class="dv">80</span> <span class="sc">+</span> <span class="fl">0.10</span><span class="sc">*</span><span class="dv">85</span> <span class="sc">+</span> <span class="fl">0.07</span><span class="sc">*</span><span class="dv">74</span> </span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>owensboro.o <span class="ot">=</span> <span class="sc">-</span><span class="fl">17.42</span> <span class="sc">+</span> <span class="fl">0.38</span><span class="sc">*</span><span class="dv">94</span> <span class="sc">+</span> <span class="fl">0.13</span><span class="sc">*</span><span class="dv">93</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">86</span> <span class="sc">-</span> <span class="fl">0.04</span><span class="sc">*</span><span class="dv">80</span> <span class="sc">+</span> <span class="fl">0.04</span><span class="sc">*</span><span class="dv">89</span> <span class="sc">+</span> <span class="fl">0.51</span><span class="sc">*</span><span class="dv">84</span> <span class="sc">+</span> <span class="fl">0.10</span><span class="sc">*</span><span class="dv">93</span> <span class="sc">+</span> <span class="fl">0.07</span><span class="sc">*</span><span class="dv">87</span> </span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>southwestern.o <span class="ot">=</span> <span class="sc">-</span><span class="fl">17.42</span> <span class="sc">+</span> <span class="fl">0.38</span><span class="sc">*</span><span class="dv">88</span> <span class="sc">+</span> <span class="fl">0.13</span><span class="sc">*</span><span class="dv">88</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">83</span> <span class="sc">-</span> <span class="fl">0.04</span><span class="sc">*</span><span class="dv">73</span> <span class="sc">+</span> <span class="fl">0.04</span><span class="sc">*</span><span class="dv">84</span> <span class="sc">+</span> <span class="fl">0.51</span><span class="sc">*</span><span class="dv">78</span> <span class="sc">+</span> <span class="fl">0.10</span><span class="sc">*</span><span class="dv">87</span> <span class="sc">+</span> <span class="fl">0.07</span><span class="sc">*</span><span class="dv">85</span> </span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>chadron.o <span class="ot">=</span> <span class="sc">-</span><span class="fl">17.42</span> <span class="sc">+</span> <span class="fl">0.38</span><span class="sc">*</span><span class="dv">91</span> <span class="sc">+</span> <span class="fl">0.13</span><span class="sc">*</span><span class="dv">97</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">89</span> <span class="sc">-</span> <span class="fl">0.04</span><span class="sc">*</span><span class="dv">85</span> <span class="sc">+</span> <span class="fl">0.04</span><span class="sc">*</span><span class="dv">90</span> <span class="sc">+</span> <span class="fl">0.51</span><span class="sc">*</span><span class="dv">81</span> <span class="sc">+</span> <span class="fl">0.10</span><span class="sc">*</span><span class="dv">87</span> <span class="sc">+</span> <span class="fl">0.07</span><span class="sc">*</span><span class="dv">90</span> </span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>phoenix.o <span class="ot">=</span> <span class="sc">-</span><span class="fl">17.42</span> <span class="sc">+</span> <span class="fl">0.38</span><span class="sc">*</span><span class="dv">93</span> <span class="sc">+</span> <span class="fl">0.13</span><span class="sc">*</span><span class="dv">94</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">87</span> <span class="sc">-</span> <span class="fl">0.04</span><span class="sc">*</span><span class="dv">80</span> <span class="sc">+</span> <span class="fl">0.04</span><span class="sc">*</span><span class="dv">85</span> <span class="sc">+</span> <span class="fl">0.51</span><span class="sc">*</span><span class="dv">80</span> <span class="sc">+</span> <span class="fl">0.10</span><span class="sc">*</span><span class="dv">85</span> <span class="sc">+</span> <span class="fl">0.07</span><span class="sc">*</span><span class="dv">85</span> </span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>louisville.o <span class="ot">=</span> <span class="sc">-</span><span class="fl">17.42</span> <span class="sc">+</span> <span class="fl">0.38</span><span class="sc">*</span><span class="dv">87</span> <span class="sc">+</span> <span class="fl">0.13</span><span class="sc">*</span><span class="dv">87</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">78</span> <span class="sc">-</span> <span class="fl">0.04</span><span class="sc">*</span><span class="dv">71</span> <span class="sc">+</span> <span class="fl">0.04</span><span class="sc">*</span><span class="dv">85</span> <span class="sc">+</span> <span class="fl">0.51</span><span class="sc">*</span><span class="dv">77</span> <span class="sc">+</span> <span class="fl">0.10</span><span class="sc">*</span><span class="dv">84</span> <span class="sc">+</span> <span class="fl">0.07</span><span class="sc">*</span><span class="dv">74</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 55%">
+<col style="width: 23%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Hospital</th>
+<th>Predicted Overall</th>
+<th>Actual Overall</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Providence Holy Cross Medical Center</td>
+<td>88.18</td>
+<td>90</td>
+</tr>
+<tr class="even">
+<td>Oroville Hospital</td>
+<td>75.55</td>
+<td>74</td>
+</tr>
+<tr class="odd">
+<td>The University Hospital</td>
+<td>80.71</td>
+<td>81</td>
+</tr>
+<tr class="even">
+<td>Columbia Mo Va Medical Center</td>
+<td>91.58</td>
+<td>93</td>
+</tr>
+<tr class="odd">
+<td>LAC/Olive View-UCLA Medical Center</td>
+<td>85.4</td>
+<td>86</td>
+</tr>
+<tr class="even">
+<td>Owensboro Health Muhlenberg Community Hospital</td>
+<td>91.56</td>
+<td>93</td>
+</tr>
+<tr class="odd">
+<td>Southwestern Medical Center</td>
+<td>84.82</td>
+<td>86</td>
+</tr>
+<tr class="even">
+<td>Chadron Community Hospital and Health Services</td>
+<td>88.95</td>
+<td>90</td>
+</tr>
+<tr class="odd">
+<td>Phoenix Indian Medical Center</td>
+<td>88.2</td>
+<td>90</td>
+</tr>
+<tr class="even">
+<td>University of Louisville Hospital</td>
+<td>82.7</td>
+<td>84</td>
+</tr>
+</tbody>
+</table>
+<p>The predictions are very close to the actual score it received in this case.</p>
+</section>
+<section id="recommended-predictions" class="level4">
+<h4 class="anchored" data-anchor-id="recommended-predictions">Recommended Predictions</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>providence.r <span class="ot">=</span> <span class="sc">-</span><span class="fl">49.96</span> <span class="sc">+</span> <span class="fl">0.51</span><span class="sc">*</span><span class="dv">92</span> <span class="sc">+</span> <span class="fl">0.16</span><span class="sc">*</span><span class="dv">90</span> <span class="sc">-</span> <span class="fl">0.05</span><span class="sc">*</span><span class="dv">85</span> <span class="sc">-</span> <span class="fl">0.12</span><span class="sc">*</span><span class="dv">74</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">87</span> <span class="sc">+</span> <span class="fl">0.96</span><span class="sc">*</span><span class="dv">82</span> <span class="sc">+</span> <span class="fl">0.08</span><span class="sc">*</span><span class="dv">88</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">75</span> </span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>oroville.r <span class="ot">=</span> <span class="sc">-</span><span class="fl">49.96</span> <span class="sc">+</span> <span class="fl">0.51</span><span class="sc">*</span><span class="dv">82</span> <span class="sc">+</span> <span class="fl">0.16</span><span class="sc">*</span><span class="dv">84</span> <span class="sc">-</span> <span class="fl">0.05</span><span class="sc">*</span><span class="dv">68</span> <span class="sc">-</span> <span class="fl">0.12</span><span class="sc">*</span><span class="dv">65</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">78</span> <span class="sc">+</span> <span class="fl">0.96</span><span class="sc">*</span><span class="dv">71</span> <span class="sc">+</span> <span class="fl">0.08</span><span class="sc">*</span><span class="dv">75</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">66</span> </span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>university.r <span class="ot">=</span> <span class="sc">-</span><span class="fl">49.96</span> <span class="sc">+</span> <span class="fl">0.51</span><span class="sc">*</span><span class="dv">85</span> <span class="sc">+</span> <span class="fl">0.16</span><span class="sc">*</span><span class="dv">88</span> <span class="sc">-</span> <span class="fl">0.05</span><span class="sc">*</span><span class="dv">71</span> <span class="sc">-</span> <span class="fl">0.12</span><span class="sc">*</span><span class="dv">67</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">79</span> <span class="sc">+</span> <span class="fl">0.96</span><span class="sc">*</span><span class="dv">76</span> <span class="sc">+</span> <span class="fl">0.08</span><span class="sc">*</span><span class="dv">77</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">76</span> </span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>columbia.r <span class="ot">=</span> <span class="sc">-</span><span class="fl">49.96</span> <span class="sc">+</span> <span class="fl">0.51</span><span class="sc">*</span><span class="dv">94</span> <span class="sc">+</span> <span class="fl">0.16</span><span class="sc">*</span><span class="dv">92</span> <span class="sc">-</span> <span class="fl">0.05</span><span class="sc">*</span><span class="dv">86</span> <span class="sc">-</span> <span class="fl">0.12</span><span class="sc">*</span><span class="dv">83</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">88</span> <span class="sc">+</span> <span class="fl">0.96</span><span class="sc">*</span><span class="dv">85</span> <span class="sc">+</span> <span class="fl">0.08</span><span class="sc">*</span><span class="dv">91</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">87</span> </span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>olive.r <span class="ot">=</span> <span class="sc">-</span><span class="fl">49.96</span> <span class="sc">+</span> <span class="fl">0.51</span><span class="sc">*</span><span class="dv">89</span> <span class="sc">+</span> <span class="fl">0.16</span><span class="sc">*</span><span class="dv">90</span> <span class="sc">-</span> <span class="fl">0.05</span><span class="sc">*</span><span class="dv">78</span> <span class="sc">-</span> <span class="fl">0.12</span><span class="sc">*</span><span class="dv">75</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">87</span> <span class="sc">+</span> <span class="fl">0.96</span><span class="sc">*</span><span class="dv">80</span> <span class="sc">+</span> <span class="fl">0.08</span><span class="sc">*</span><span class="dv">85</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">74</span> </span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>owensboro.r <span class="ot">=</span> <span class="sc">-</span><span class="fl">49.96</span> <span class="sc">+</span> <span class="fl">0.51</span><span class="sc">*</span><span class="dv">94</span> <span class="sc">+</span> <span class="fl">0.16</span><span class="sc">*</span><span class="dv">93</span> <span class="sc">-</span> <span class="fl">0.05</span><span class="sc">*</span><span class="dv">86</span> <span class="sc">-</span> <span class="fl">0.12</span><span class="sc">*</span><span class="dv">80</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">89</span> <span class="sc">+</span> <span class="fl">0.96</span><span class="sc">*</span><span class="dv">84</span> <span class="sc">+</span> <span class="fl">0.08</span><span class="sc">*</span><span class="dv">93</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">87</span> </span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>southwestern.r <span class="ot">=</span> <span class="sc">-</span><span class="fl">49.96</span> <span class="sc">+</span> <span class="fl">0.51</span><span class="sc">*</span><span class="dv">88</span> <span class="sc">+</span> <span class="fl">0.16</span><span class="sc">*</span><span class="dv">88</span> <span class="sc">-</span> <span class="fl">0.05</span><span class="sc">*</span><span class="dv">83</span> <span class="sc">-</span> <span class="fl">0.12</span><span class="sc">*</span><span class="dv">73</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">84</span> <span class="sc">+</span> <span class="fl">0.96</span><span class="sc">*</span><span class="dv">78</span> <span class="sc">+</span> <span class="fl">0.08</span><span class="sc">*</span><span class="dv">87</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">85</span> </span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>chadron.r <span class="ot">=</span> <span class="sc">-</span><span class="fl">49.96</span> <span class="sc">+</span> <span class="fl">0.51</span><span class="sc">*</span><span class="dv">91</span> <span class="sc">+</span> <span class="fl">0.16</span><span class="sc">*</span><span class="dv">97</span> <span class="sc">-</span> <span class="fl">0.05</span><span class="sc">*</span><span class="dv">89</span> <span class="sc">-</span> <span class="fl">0.12</span><span class="sc">*</span><span class="dv">85</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">90</span> <span class="sc">+</span> <span class="fl">0.96</span><span class="sc">*</span><span class="dv">81</span> <span class="sc">+</span> <span class="fl">0.08</span><span class="sc">*</span><span class="dv">87</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">90</span> </span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>phoenix.r <span class="ot">=</span> <span class="sc">-</span><span class="fl">49.96</span> <span class="sc">+</span> <span class="fl">0.51</span><span class="sc">*</span><span class="dv">93</span> <span class="sc">+</span> <span class="fl">0.16</span><span class="sc">*</span><span class="dv">94</span> <span class="sc">-</span> <span class="fl">0.05</span><span class="sc">*</span><span class="dv">87</span> <span class="sc">-</span> <span class="fl">0.12</span><span class="sc">*</span><span class="dv">80</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">85</span> <span class="sc">+</span> <span class="fl">0.96</span><span class="sc">*</span><span class="dv">80</span> <span class="sc">+</span> <span class="fl">0.08</span><span class="sc">*</span><span class="dv">85</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">85</span> </span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>louisville.r <span class="ot">=</span> <span class="sc">-</span><span class="fl">49.96</span> <span class="sc">+</span> <span class="fl">0.51</span><span class="sc">*</span><span class="dv">87</span> <span class="sc">+</span> <span class="fl">0.16</span><span class="sc">*</span><span class="dv">87</span> <span class="sc">-</span> <span class="fl">0.05</span><span class="sc">*</span><span class="dv">78</span> <span class="sc">-</span> <span class="fl">0.12</span><span class="sc">*</span><span class="dv">71</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">85</span> <span class="sc">+</span> <span class="fl">0.96</span><span class="sc">*</span><span class="dv">77</span> <span class="sc">+</span> <span class="fl">0.08</span><span class="sc">*</span><span class="dv">84</span> <span class="sc">+</span> <span class="fl">0.03</span><span class="sc">*</span><span class="dv">74</span> </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 55%">
+<col style="width: 22%">
+<col style="width: 22%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Hospital</th>
+<th>Predicted Recommended</th>
+<th>Actual Recommended</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Providence Holy Cross Medical Center</td>
+<td>88.85</td>
+<td>88</td>
+</tr>
+<tr class="even">
+<td>Oroville Hospital</td>
+<td>72.58</td>
+<td>69</td>
+</tr>
+<tr class="odd">
+<td>The University Hospital</td>
+<td>79.65</td>
+<td>79</td>
+</tr>
+<tr class="even">
+<td>Columbia Mo Va Medical Center</td>
+<td>92.57</td>
+<td>92</td>
+</tr>
+<tr class="odd">
+<td>LAC/Olive View-UCLA Medical Center</td>
+<td>85.36</td>
+<td>86</td>
+</tr>
+<tr class="even">
+<td>Owensboro Health Muhlenberg Community Hospital</td>
+<td>92.32</td>
+<td>91</td>
+</tr>
+<tr class="odd">
+<td>Southwestern Medical Center</td>
+<td>83</td>
+<td>85</td>
+</tr>
+<tr class="even">
+<td>Chadron Community Hospital and Health Services</td>
+<td>87.44</td>
+<td>91</td>
+</tr>
+<tr class="odd">
+<td>Phoenix Indian Medical Center</td>
+<td>87.26</td>
+<td>86</td>
+</tr>
+<tr class="even">
+<td>University of Louisville Hospital</td>
+<td>81.32</td>
+<td>82</td>
+</tr>
+</tbody>
+</table>
+<p>The recommended score has a little bit more range to the predictions.</p>
 </section>
 </section>
-<section id="design-and-data-collection" class="level1">
-<h1>Design and Data Collection</h1>
 </section>
-<section id="insights" class="level1">
-<h1>Insights</h1>
-<p><strong>Thoughtfully proposes an inferential model, explains in general how the inference works, and interprets the results appropriately</strong></p>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
+<p>I was curious about what variable impacts the scores the most. With these equations, there is a heavy influence from the care transition for both models as it has the highest coefficient, and therefore influence when calculating the final score.</p>
+<p>Both linear models have pretty accurate predictions with occasional variation when tested with a random sample of hospitals.</p>
 </section>
 <section id="limitations" class="level1">
-<h1>Limitations:</h1>
-<p>If I were to receive this data to help me choose a hospital to go to, I would rely more on the overall scores to help me make my decision over the recommended score. However, this data should not be the only research done for these hospitals. These models do not always account for every different experience that a person would get, and some may be skewed positive or skewed negative experiences. The response rates for each of the hospitals varies incredibly, which can also be a factor in what data they receive. In looking at the data collection process, it seems that most of the surveys were of a voluntary response, indicating that mostly those who are passionate about their experience will respond. This may not be truly random data and should be taken with a grain of salt. If used in the real world, the model would affect those who were trying to make a decision on what hospital they should use. If they tried to choose the best hospital and got one that had more skewed results, they might not get the standard of care that they anticipated which could lead to a worse experience. It could also very much rule out great hospitals that got bad reviews from some unfortunate experiences. With this, certain hospitals could get over-crowded if there are a lot of good reviews rating them higher. This in turn could cause for more bad reviews as people wait longer for their care. Overall, this model could have a lot of influence on how these hospitals perform and how the people going to these hospitals could receive their care.</p>
+<h1>Limitations</h1>
+<p>If I were to receive this data to help me choose a hospital to go to, I would rely more on the overall scores model to help me make my decision over the recommended score. However, this data should not be the only research done for these hospitals. These models do not always account for every different experience that a person would get, and some may be skewed positive or skewed negative experiences. The response rates for each of the hospitals varies incredibly, which can also be a factor in what data they receive. In looking at the data collection process, it seems that most of the surveys were of a voluntary response, indicating that mostly those who are passionate about their experience will respond. This may not be truly random data and should be taken with a grain of salt. If used in the real world, the model would affect those who were trying to make a decision on what hospital they should use. If someone tried to choose the best hospital and got one that had more skewed results, they might not get the standard of care that they anticipated which could lead to a worse experience. It could also very much rule out great hospitals that got bad reviews from some unfortunate experiences. With this, certain hospitals could get over-crowded if there are a lot of good reviews rating them higher. This in turn could cause for more bad reviews as people wait longer for their care. Overall, this model could have a lot of influence on how these hospitals perform and how the people going to these hospitals could receive their care.</p>
 
 
 </section>
