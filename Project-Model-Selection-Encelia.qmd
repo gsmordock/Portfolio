@@ -264,7 +264,7 @@ encelia_prediction |>
   select(Species, .pred_species, .pred_C, .pred_F)
 ```
 
-## **Insights**
+## Insights
 
 ```{r}
 encelia_prediction |>
